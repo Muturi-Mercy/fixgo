@@ -28,24 +28,40 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+   public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'string', 'max:20'],
+            'role' => ['required', 'in:user,mechanic'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'role' => $request->role,
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        // If mechanic, create mechanic profile
+        if ($request->role === 'mechanic') {
+            \App\Models\Mechanic::create([
+                'user_id' => $user->id,
+                'availability' => 'offline',
+                'verification_status' => 'pending',
+            ]);
+        }
 
+        event(new Registered($user));
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        if ($user->role === 'mechanic') {
+            return redirect()->route('mechanic.dashboard');
+        }
+
+        return redirect()->route('user.dashboard');
     }
 }

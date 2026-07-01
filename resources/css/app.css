@@ -1,3 +1,237 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* FixGo Custom Styles */
+:root {
+    --fixgo-primary: #1a3c6e;
+    --fixgo-secondary: #f97316;
+    --fixgo-accent: #3b82f6;
+    --fixgo-light: #f0f4ff;
+    --fixgo-dark: #0f1f3d;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4ff;
+}
+
+/* AUTH PAGES */
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a3c6e 0%, #3b82f6 100%);
+    padding: 20px;
+}
+
+.auth-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    width: 100%;
+    max-width: 480px;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, #1a3c6e, #3b82f6);
+    padding: 35px 40px;
+    text-align: center;
+    color: white;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.auth-logo-icon {
+    width: 50px;
+    height: 50px;
+    background: #f97316;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.auth-logo h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.auth-logo p {
+    font-size: 11px;
+    opacity: 0.8;
+    margin: 0;
+    text-align: left;
+}
+
+.auth-header h2 {
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.auth-body {
+    padding: 35px 40px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.input-group .form-control {
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+}
+
+.input-group-text {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    color: #6b7280;
+}
+
+.btn-fixgo {
+    background: linear-gradient(135deg, #1a3c6e, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.btn-fixgo:hover {
+    background: linear-gradient(135deg, #0f1f3d, #1a3c6e);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(26, 60, 110, 0.3);
+}
+
+.role-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.role-card {
+    flex: 1;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.role-card:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.role-card.selected {
+    border-color: #1a3c6e;
+    background: #eff6ff;
+}
+
+.role-card i {
+    font-size: 24px;
+    color: #6b7280;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.role-card.selected i {
+    color: #1a3c6e;
+}
+
+.role-card span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.auth-footer {
+    text-align: center;
+    padding: 20px 40px 30px;
+    border-top: 1px solid #f3f4f6;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.auth-footer a {
+    color: #3b82f6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    color: #1a3c6e;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.invalid-feedback {
+    font-size: 12px;
+}
+
+.sos-badge {
+    background: #ef4444;
+    color: white;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+}

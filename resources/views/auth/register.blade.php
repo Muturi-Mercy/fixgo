@@ -1,52 +1,206 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+@extends('layouts.guest')
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+@section('title', 'Register')
+
+@section('content')
+
+<div class="auth-card" style="max-width: 520px;">
+    {{-- Header --}}
+    <div class="auth-header">
+        <div class="auth-logo">
+            <div class="auth-logo-icon">
+                <i class="fas fa-wrench"></i>
+            </div>
+            <div>
+                <h1>FixGo</h1>
+                <p>We fix it. You go.</p>
+            </div>
         </div>
+        <h2>Create your account</h2>
+    </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    {{-- Body --}}
+    <div class="auth-body">
+        <form method="POST" action="{{ route('register') }}">
+            @csrf
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            {{-- Role Selector --}}
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-user-tag me-1 text-primary"></i> I am registering as
+                </label>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+                <div class="role-selector">
+                    <div class="role-card selected" id="role-user" onclick="selectRole('user')">
+                        <i class="fas fa-car"></i>
+                        <span>Driver / User</span>
+                    </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+                    <div class="role-card" id="role-mechanic" onclick="selectRole('mechanic')">
+                        <i class="fas fa-tools"></i>
+                        <span>Mechanic</span>
+                    </div>
+                </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                <input type="hidden" name="role" id="roleInput" value="user">
+            </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+            {{-- Name --}}
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-user me-1 text-primary"></i> Full Name
+                </label>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+                <input
+                    type="text"
+                    name="name"
+                    class="form-control @error('name') is-invalid @enderror"
+                    value="{{ old('name') }}"
+                    placeholder="Enter your full name"
+                    required
+                    autofocus
+                >
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+                @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+            {{-- Email --}}
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-envelope me-1 text-primary"></i> Email Address
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    class="form-control @error('email') is-invalid @enderror"
+                    value="{{ old('email') }}"
+                    placeholder="Enter your email"
+                    required
+                >
+
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Phone --}}
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-phone me-1 text-primary"></i> Phone Number
+                </label>
+
+                <input
+                    type="text"
+                    name="phone"
+                    class="form-control @error('phone') is-invalid @enderror"
+                    value="{{ old('phone') }}"
+                    placeholder="e.g. 0712345678"
+                    required
+                >
+
+                @error('phone')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Password --}}
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-lock me-1 text-primary"></i> Password
+                </label>
+
+                <div class="input-group">
+                    <input
+                        type="password"
+                        name="password"
+                        id="passwordField"
+                        class="form-control @error('password') is-invalid @enderror"
+                        placeholder="Create a password"
+                        required
+                    >
+
+                    <span class="input-group-text" style="cursor:pointer"
+                        onclick="togglePassword('passwordField','eyeIcon1')">
+                        <i class="fas fa-eye" id="eyeIcon1"></i>
+                    </span>
+                </div>
+
+                @error('password')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Confirm Password --}}
+            <div class="mb-4">
+                <label class="form-label">
+                    <i class="fas fa-lock me-1 text-primary"></i> Confirm Password
+                </label>
+
+                <div class="input-group">
+                    <input
+                        type="password"
+                        name="password_confirmation"
+                        id="passwordField2"
+                        class="form-control"
+                        placeholder="Confirm your password"
+                        required
+                    >
+
+                    <span class="input-group-text" style="cursor:pointer"
+                        onclick="togglePassword('passwordField2','eyeIcon2')">
+                        <i class="fas fa-eye" id="eyeIcon2"></i>
+                    </span>
+                </div>
+            </div>
+
+            {{-- Submit --}}
+            <button type="submit" class="btn btn-fixgo">
+                <i class="fas fa-user-plus me-2"></i>
+                <span id="registerBtnText">Create Account</span>
+            </button>
+
+        </form>
+    </div>
+
+    {{-- Footer --}}
+    <div class="auth-footer">
+        Already have an account?
+        <a href="{{ route('login') }}">Sign in here</a>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+function selectRole(role) {
+    document.getElementById('roleInput').value = role;
+
+    document.getElementById('role-user').classList.remove('selected');
+    document.getElementById('role-mechanic').classList.remove('selected');
+
+    document.getElementById('role-' + role).classList.add('selected');
+
+    document.getElementById('registerBtnText').textContent =
+        role === 'mechanic'
+            ? 'Register as Mechanic'
+            : 'Create Account';
+}
+
+function togglePassword(fieldId, iconId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+</script>
+@endpush
