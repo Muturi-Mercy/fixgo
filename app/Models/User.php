@@ -21,6 +21,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'profile_photo',
+        'role',
+        'status',
         'password',
     ];
 
@@ -45,5 +49,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    
+    //Role helpers
+    public function isAdmin():bool{
+        return $this->role === 'admin';
+    }
+
+    public function isMechanic():bool{
+        return $this->role ==='mechanic';
+    }
+
+    public function isUser():bool{
+        return $this->role ==='user';
+    }
+
+    //Relationship
+
+    public function mechanic(){
+        return $this->hasOne(Mechanic::class);
     }
 }

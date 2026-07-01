@@ -39,4 +39,5 @@ public function run(): void
         \App\Models\VehicleCategory::firstOrCreate(['name' => $vehicle]);
     }
 }
+
 }
