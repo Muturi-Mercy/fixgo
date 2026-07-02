@@ -44,7 +44,7 @@ body {
     color: white;
 }
 
-.auth-logo {
+ .auth-logo {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,13 +55,11 @@ body {
 .auth-logo-icon {
     width: 50px;
     height: 50px;
-    background: #f97316;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    color: white;
+    flex-shrink: 0;
+    overflow: hidden;
 }
 
 .auth-logo h1 {
@@ -148,6 +146,7 @@ body {
     display: flex;
     gap: 12px;
     margin-bottom: 20px;
+    
 }
 
 .role-card {
@@ -159,6 +158,9 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     background: #f9fafb;
+    width: 100%;
+    appearance: none;
+    outline: none;
 }
 
 .role-card:hover {

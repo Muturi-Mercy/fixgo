@@ -4,42 +4,42 @@
 
 @section('content')
 
-<div class="auth-card" style="max-width: 520px;">
+<div class="auth-card" style="max-width: 500px; padding:0px">
     {{-- Header --}}
-    <div class="auth-header">
+    <div class="auth-header"style="padding:10px;">
         <div class="auth-logo">
             <div class="auth-logo-icon">
-                <i class="fas fa-wrench"></i>
+                <img src="{{ asset('images/driverlog.png') }}" alt="Driver Logo"  style="width:65px; height:65px; object-fit:contain;">
             </div>
             <div>
                 <h1>FixGo</h1>
-                <p>We fix it. You go.</p>
+                <p>Fix Smart. Go Safe.</p>
             </div>
         </div>
         <h2>Create your account</h2>
     </div>
 
     {{-- Body --}}
-    <div class="auth-body">
+    <div class="auth-body"style="padding-top:10px;">
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
             {{-- Role Selector --}}
             <div class="mb-3">
                 <label class="form-label">
-                    <i class="fas fa-user-tag me-1 text-primary"></i> I am registering as
+                    <i class="fas fa-user-tag me-1 text-primary"></i> Register as
                 </label>
 
-                <div class="role-selector">
-                    <div class="role-card selected" id="role-user" onclick="selectRole('user')">
+                <div class="role-selector" style="padding: 0px">
+                    <button type="button" class="role-card selected"id="role-user" onclick="selectRole('user')">
                         <i class="fas fa-car"></i>
-                        <span>Driver / User</span>
-                    </div>
+                        <span>Driver</span>
+                    </button>
 
-                    <div class="role-card" id="role-mechanic" onclick="selectRole('mechanic')">
+                    <button type="button" class="role-card" id="role-mechanic" onclick="selectRole('mechanic')">
                         <i class="fas fa-tools"></i>
                         <span>Mechanic</span>
-                    </div>
+                    </button>
                 </div>
 
                 <input type="hidden" name="role" id="roleInput" value="user">
@@ -158,8 +158,8 @@
 
             {{-- Submit --}}
             <button type="submit" class="btn btn-fixgo">
-                <i class="fas fa-user-plus me-2"></i>
-                <span id="registerBtnText">Create Account</span>
+                <i class="fas fa-user-plus me-2" style="color: #fff;"></i>
+                <span id="registerBtnText" style="color: #fff;">Create Account</span>
             </button>
 
         </form>
@@ -186,7 +186,7 @@ function selectRole(role) {
 
     document.getElementById('registerBtnText').textContent =
         role === 'mechanic'
-            ? 'Register as Mechanic'
+            ? 'Create Account'
             : 'Create Account';
 }
 

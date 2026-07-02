@@ -9,11 +9,11 @@
     <div class="auth-header">
         <div class="auth-logo">
             <div class="auth-logo-icon">
-                <i class="fas fa-wrench"></i>
+               <img src="{{ asset('images/driverlog.png') }}" alt="Driver Logo"  style="width:65px; height:65px; object-fit:contain;">
             </div>
             <div>
                 <h1>FixGo</h1>
-                <p>We fix it. You go.</p>
+                <p>Fix Smart. Go Safe.</p>
             </div>
         </div>
         <h2>Welcome back! Please sign in.</h2>
@@ -105,8 +105,8 @@
 
             {{-- Submit --}}
             <button type="submit" class="btn btn-fixgo">
-                <i class="fas fa-sign-in-alt me-2"></i>
-                Sign In
+                <i class="fas fa-sign-in-alt me-2" style="color: #fff;"></i>
+               <span style="color: #fff;"> Sign In </span>
             </button>
 
         </form>
