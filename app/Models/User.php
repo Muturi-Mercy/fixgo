@@ -7,6 +7,9 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Mechanic;
+use App\Models\Favourite;
+use App\Models\RatingReview;
 
 class User extends Authenticatable
 {
@@ -68,5 +71,20 @@ class User extends Authenticatable
 
     public function mechanic(){
         return $this->hasOne(Mechanic::class);
+    }
+
+    public function breakdownRequests()
+    {
+        return $this->hasMany(BreakdownRequest::class);
+    }
+
+    public function favourites()
+    {
+        return $this->hasMany(Favourite::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(RatingReview::class);
     }
 }

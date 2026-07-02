@@ -40,6 +40,14 @@ Route::middleware(['auth','mechanic'])->prefix('mechanic')->name('mechanic.')->g
 
 Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(function(){
     Route::get('/dashboard',[UserDashboardController::class,'index'])->name('dashboard');
+    Route::get('/request-assistance',[UserDashboardController::class,'requestAssistance'])->name('request-assistance');
+    Route::get('/my-requests',[UserDashboardController::class,'myRequest'])->name('my-requests');
+    Route::get('/mechanics',[UserDashboardController::class,'mechanics'])->name('mechanics');
+    Route::get('/mechanics/{id}',[UserDashboardController::class,'mechanicProfile'])->name('mechanic-profile');
+    Route::get('/track/{id}',[UserDashboardController::class,'trackMechanic'])->name('track');
+    Route::get('/favourites',[UserDashboardController::class,'favourites'])->name('favourites');
+    Route::get('/notifications',[UserDashboardController::class,'notifications'])->name('notifications');
+    Route::get('/profile',[UserDashboardController::class,'profile'])->name('profile');
 });
 
 

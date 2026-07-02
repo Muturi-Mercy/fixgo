@@ -3,32 +3,53 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Mechanic extends Model
 {
     protected $fillable = [
-        'user_id',
-        'specialization',
-        'years_of_experience',
+        'user_id', 
+        'specialization', 
+        'years_of_experience', 
         'bio',
-        'location_address',
-        'latitude',
-        'longitude',
+        'location_address', 
+        'latitude', 
+        'longitude', 
         'availability',
-        'verification_status',
-        'rating',
+        'verification_status', 
+        'rating', 
         'total_jobs',
         'response_time',
         'min_price',
-        'max_price',
+        'max_price'
     ];
 
-    /**
-     * Get the user that owns the mechanic profile.
-     */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function breakdownRequests()
+    {
+        return $this->hasMany(BreakdownRequest::class);
+    }
+
+    public function portfolios()
+    {
+        return $this->hasMany(MechanicPortfolio::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(RatingReview::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(MechanicDocument::class);
+    }
+
+    public function favouritedBy()
+    {
+        return $this->hasMany(Favourite::class);
     }
 }
