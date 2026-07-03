@@ -42,7 +42,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         {{-- <div>
             <h4 style="color:#1a3c6e; font-weight:700; margin:0">
-                Welcome back, {{ auth()->user()->name }}! 👋
+                Welcome back, {{ auth()->user()->name }}! 
             </h4>
             <p class="text-muted mb-0" style="font-size:14px">
                 Here's what's happening with your requests today.
@@ -51,7 +51,7 @@
 
         <a href="{{ route('user.request-assistance') }}" class="btn btn-fixgo"
         style="width:auto; padding:10px 20px">
-            <i class="fas fa-plus me-2"></i> New Request
+            <i class="fas fa-plus me-2" style="color: white"></i> <span style="color: white">New Request</span>
         </a>
     </div>
 
@@ -60,40 +60,40 @@
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon blue"><i class="fas fa-list"></i></div>
+                {{-- <div class="stat-icon blue"><i class="fas fa-list"></i></div> --}}
                 <div class="stat-info">
                     <h3>{{ $totalRequests }}</h3>
-                    <p>Total Requests</p>
+                    <p style="color: #3b82f6">Total Requests</p>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon orange"><i class="fas fa-spinner"></i></div>
+                {{-- <div class="stat-icon orange"><i class="fas fa-spinner"></i></div> --}}
                 <div class="stat-info">
                     <h3>{{ $activeRequests }}</h3>
-                    <p>Active Request</p>
+                    <p style="color: #f97316">Active Request</p>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                {{-- <div class="stat-icon green"><i class="fas fa-check-circle"></i></div> --}}
                 <div class="stat-info">
                     <h3>{{ $completedRequests }}</h3>
-                    <p>Completed Request</p>
+                    <p style="color: #3b82f6">Completed Request</p>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon purple"><i class="fas fa-heart"></i></div>
+                {{-- <div class="stat-icon purple"><i class="fas fa-heart"></i></div> --}}
                 <div class="stat-info">
                     <h3>{{ $favourites }}</h3>
-                    <p>Favourites</p>
+                    <p style="color: #f97316">Favourites</p>
                 </div>
             </div>
         </div>
@@ -107,7 +107,7 @@
         <div class="col-md-6">
             <div class="fixgo-card h-100">
                 <div class="fixgo-card-header">
-                    <h6><i class="fas fa-bolt me-2 text-warning"></i>Active Request</h6>
+                     <h6>{{--<i class="fas fa-bolt me-2 text-warning"></i> --}}Active Request</h6>
                     @if($activeRequest)
                         <span class="status-badge badge-on-the-way">
                             {{ ucwords(str_replace('_', ' ', $activeRequest->status)) }}
@@ -165,7 +165,7 @@
                             <p class="text-muted mb-3">No active requests right now.</p>
                             <a href="{{ route('user.request-assistance') }}"
                             class="btn btn-fixgo" style="width:auto;padding:10px 20px">
-                                <i class="fas fa-plus me-2"></i> Request Help
+                                <i class="fas fa-plus me-2"style="color: white"></i><span style="color: white"> Request Help</span>
                             </a>
                         </div>
                     @endif
@@ -177,7 +177,7 @@
         <div class="col-md-6">
             <div class="fixgo-card h-100">
                 <div class="fixgo-card-header">
-                    <h6><i class="fas fa-th me-2 text-primary"></i>Quick Actions</h6>
+                    <h6>{{--<i class="fas fa-th me-2 text-primary"></i>--}}Quick Actions</h6>
                 </div>
                 <div class="fixgo-card-body">
                     <div class="row g-3">
@@ -187,34 +187,37 @@
                                 <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)">
                                     <i class="fas fa-plus-circle"></i>
                                 </div>
-                                <span>Request Help</span>
+                                <span style="color: #f97316">Request Help</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('user.mechanics') }}"
                             class="quick-action-card text-decoration-none">
-                                <div class="qa-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+                             {{-- style="background:linear-gradient(135deg,#10b981,#059669) --}}
+                                <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)">
                                     <i class="fas fa-search"></i>
                                 </div>
-                                <span>Find Mechanic</span>
+                                <span style="color: #3b82f6">Find Mechanic</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('user.my-requests') }}"
                             class="quick-action-card text-decoration-none">
-                                <div class="qa-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">
+                            {{-- style="background:linear-gradient(135deg,#f97316,#ef4444)" --}}
+                                <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)">
                                     <i class="fas fa-history"></i>
                                 </div>
-                                <span>My Requests</span>
+                                <span style="color: #3b82f6">My Requests</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('user.favourites') }}"
                             class="quick-action-card text-decoration-none">
-                                <div class="qa-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
-                                    <i class="fas fa-heart"></i>
+                            {{-- style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)" --}}
+                                <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)" >
+                                    <i class="fas fa-heart" ></i>
                                 </div>
-                                <span>Favourites</span>
+                                <span style="color: #f97316">Favourites</span>
                             </a>
                         </div>
                     </div>
@@ -281,11 +284,11 @@
                     </div>
                     @else
                     <div class="text-center py-5">
-                        <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No requests yet.</p>
+                        {{-- <i class="fas fa-clipboard fa-3x text-muted mb-3"></i> --}}
+                        <p class="text-muted" >No requests yet.</p>
                         <a href="{{ route('user.request-assistance') }}"
                         class="btn btn-fixgo" style="width:auto;padding:10px 20px">
-                            Make your first request
+                            <span style="color: white" >Make your first request</span>
                         </a>
                     </div>
                     @endif
