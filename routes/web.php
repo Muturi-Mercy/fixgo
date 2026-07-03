@@ -48,6 +48,7 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::get('/favourites',[UserDashboardController::class,'favourites'])->name('favourites');
     Route::get('/notifications',[UserDashboardController::class,'notifications'])->name('notifications');
     Route::get('/profile',[UserDashboardController::class,'profile'])->name('profile');
+    Route::post('/request-assistance',[UserDashboardController::class,'storeRequest'])->name('store-request');
 });
 
 

@@ -87,4 +87,44 @@ class UserDashboardController extends Controller
     {
         return view('user.profile');
     }
+
+    public function storeRequest(Request $request)
+    {
+        $request->validate([
+            'vehicle_category_id'  => 'required|exists:vehicle_categories,id',
+            'service_category_id'  => 'required|exists:service_categories,id',
+            'problem_description'  => 'required|string',
+            'user_latitude'        => 'required',
+            'user_longitude'       => 'required',
+        ]);
+
+        // Generate unique request number
+        $requestNumber = 'REQ#' . strtoupper(uniqid());
+
+        $breakdownRequest = BreakdownRequest::create([
+            'request_number'      => $requestNumber,
+            'user_id'             => auth()->id(),
+            'service_category_id' => $request->service_category_id,
+            'vehicle_category_id' => $request->vehicle_category_id,
+            'problem_description' => $request->problem_description,
+            'user_latitude'       => $request->user_latitude,
+            'user_longitude'      => $request->user_longitude,
+            'user_address'        => $request->user_address,
+            'status'              => 'pending',
+        ]);
+
+        // Handle photo uploads
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('request-photos', 'public');
+                \App\Models\RequestPhoto::create([
+                    'breakdown_request_id' => $breakdownRequest->id,
+                    'photo_path'           => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('user.my-requests')
+            ->with('success', 'Your request has been submitted! Nearby mechanics will be notified.');
+    }
 }
