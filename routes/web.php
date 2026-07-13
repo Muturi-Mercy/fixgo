@@ -52,6 +52,10 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::patch('/request/{id}/cancel', [UserDashboardController::class, 'cancelRequest'])->name('cancel-request');
     Route::post('/rate-request', [UserDashboardController::class, 'rateRequest'])->name('rate-request');
     Route::get('/request-details/{id}', [UserDashboardController::class, 'requestDetails'])->name('request-details');
+    Route::post('/favourite/{id}', [UserDashboardController::class, 'toggleFavourite'])->name('toggle-favourite');
+    Route::patch('/profile', [UserDashboardController::class, 'updateProfile'])->name('update-profile');
+    Route::patch('/profile/password', [UserDashboardController::class, 'updatePassword'])->name('update-password');
+    Route::post('/profile/photo', [UserDashboardController::class, 'updatePhoto'])->name('update-photo');
 });
 
 

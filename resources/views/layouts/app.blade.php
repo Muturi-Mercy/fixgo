@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>FixGo – @yield('title', 'Smart Vehicle Breakdown Assistance')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
@@ -81,7 +82,8 @@
                         <div class="nav-user-avatar">
                             @if(auth()->user()->profile_photo)
                                 <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}"
-                                     alt="Profile">
+                                    alt="Profile"
+                                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                             @else
                                 <i class="fas fa-user"></i>
                             @endif

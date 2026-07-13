@@ -19,5 +19,20 @@ class RatingReview extends Model
         'rating',
         'review'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function mechanic()
+    {
+        return $this->belongsTo(Mechanic::class);
+    }
+
+    public function breakdownRequest()
+    {
+        return $this->belongsTo(BreakdownRequest::class);
+    }
 }
 

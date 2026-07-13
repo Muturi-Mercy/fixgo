@@ -13,8 +13,8 @@
     <a href="{{ route('user.my-requests') }}" class="nav-link">
         <i class="fas fa-list"></i> My Requests
     </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-map-marker-alt"></i> Track Mechanic
+    <a href="{{ route('user.mechanics') }}" class="nav-link">
+        <i class="fas fa-search"></i> Find Mechanics
     </a>
     <a href="{{ route('user.favourites') }}" class="nav-link">
         <i class="fas fa-heart"></i> Favourites
@@ -40,14 +40,14 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        {{-- <div>
-            <h4 style="color:#1a3c6e; font-weight:700; margin:0">
+        <div>
+            {{-- <h4 style="color:#1a3c6e; font-weight:700; margin:0">
                 Welcome back, {{ auth()->user()->name }}! 
             </h4>
             <p class="text-muted mb-0" style="font-size:14px">
                 Here's what's happening with your requests today.
-            </p>
-        </div> --}}
+            </p> --}}
+        </div>
 
         <a href="{{ route('user.request-assistance') }}" class="btn btn-fixgo"
         style="width:auto; padding:10px 20px">

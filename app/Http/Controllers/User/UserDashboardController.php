@@ -114,19 +114,38 @@ class UserDashboardController extends Controller
             ]);
         }
 
-    public function mechanics()
+   public function mechanics()
     {
-        $mechanics = Mechanic::where('verification_status', 'approved')
-            ->where('availability', 'available')
-            ->with('user')
-            ->get();
+        $query = Mechanic::where('verification_status', 'approved')
+            ->with(['user', 'ratings']);
+
+        if (request('search')) {
+            $query->whereHas('user', function($q) {
+                $q->where('name', 'like', '%'.request('search').'%');
+            })->orWhere('specialization', 'like', '%'.request('search').'%');
+        }
+
+        if (request('specialization')) {
+            $query->where('specialization', 'like', '%'.request('specialization').'%');
+        }
+
+        $sort = request('sort', 'rating');
+        if ($sort === 'rating') $query->orderBy('rating', 'desc');
+        elseif ($sort === 'jobs') $query->orderBy('total_jobs', 'desc');
+        elseif ($sort === 'experience') $query->orderBy('years_of_experience', 'desc');
+
+        $mechanics = $query->get();
         return view('user.mechanics', compact('mechanics'));
     }
 
     public function mechanicProfile($id)
     {
-        $mechanic = Mechanic::with(['user', 'portfolios.images', 'ratings'])
-            ->findOrFail($id);
+        $mechanic = Mechanic::with([
+            'user',
+            'portfolios.images',
+            'ratings.user'
+        ])->findOrFail($id);
+
         return view('user.mechanic-profile', compact('mechanic'));
     }
 
@@ -139,7 +158,9 @@ class UserDashboardController extends Controller
 
     public function favourites()
     {
-        $favourites = auth()->user()->favourites()->with('mechanic.user')->get();
+        $favourites = \App\Models\Favourite::where('user_id', auth()->id())
+            ->with(['mechanic.user', 'mechanic.ratings'])
+            ->get();
         return view('user.favourites', compact('favourites'));
     }
 
@@ -150,9 +171,60 @@ class UserDashboardController extends Controller
 
     public function profile()
     {
-        return view('user.profile');
+        $user = auth()->user();
+        $totalRequests = BreakdownRequest::where('user_id', $user->id)->count();
+        $completedRequests = BreakdownRequest::where('user_id', $user->id)
+            ->where('status', 'completed')->count();
+        $favourites = \App\Models\Favourite::where('user_id', $user->id)->count();
+        return view('user.profile', compact('totalRequests', 'completedRequests', 'favourites'));
     }
 
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.auth()->id(),
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        auth()->user()->update([
+            'name'  => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        return back()->with('success', 'Profile updated successfully!');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password'         => 'required|min:6|confirmed',
+        ]);
+
+        if (!\Hash::check($request->current_password, auth()->user()->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        auth()->user()->update([
+            'password' => \Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password updated successfully!');
+    }
+
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'profile_photo' => 'required|image|max:2048',
+        ]);
+
+        $path = $request->file('profile_photo')->store('profile-photos', 'public');
+        auth()->user()->update(['profile_photo' => $path]);
+
+        return back()->with('success', 'Profile photo updated!');
+    }
     public function storeRequest(Request $request)
     {
         $request->validate([
@@ -191,5 +263,23 @@ class UserDashboardController extends Controller
 
         return redirect()->route('user.my-requests')
             ->with('success', 'Your request has been submitted! Nearby mechanics will be notified.');
+    }
+
+    public function toggleFavourite($id)
+    {
+        $existing = \App\Models\Favourite::where('user_id', auth()->id())
+            ->where('mechanic_id', $id)->first();
+
+        if ($existing) {
+            $existing->delete();
+            return response()->json(['favourited' => false]);
+        }
+
+        \App\Models\Favourite::create([
+            'user_id'     => auth()->id(),
+            'mechanic_id' => $id,
+        ]);
+
+        return response()->json(['favourited' => true]);
     }
 }
