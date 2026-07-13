@@ -8,6 +8,8 @@ use App\Models\Mechanic;
 use App\Models\ServiceCategory;
 use App\Models\VehicleCategory;
 use App\Models\User;
+use Illuminate\Http\Request;
+
 
 class UserDashboardController extends Controller
 {
@@ -42,12 +44,75 @@ class UserDashboardController extends Controller
     }
 
     public function myRequests()
-    {
-        $requests = BreakdownRequest::where('user_id', auth()->id())
-            ->with(['serviceCategory', 'mechanic.user'])
-            ->latest()->paginate(10);
-        return view('user.my-requests', compact('requests'));
-    }
+        {
+            $query = BreakdownRequest::where('user_id', auth()->id())
+                ->with(['serviceCategory', 'vehicleCategory', 'mechanic.user', 'rating']);
+
+            if (request('status')) {
+                $query->where('status', request('status'));
+            }
+
+            $requests = $query->latest()->paginate(10);
+            return view('user.my-requests', compact('requests'));
+        }
+
+    public function cancelRequest($id)
+        {
+            $request = BreakdownRequest::where('user_id', auth()->id())
+                ->where('status', 'pending')
+                ->findOrFail($id);
+            $request->update(['status' => 'cancelled']);
+            return back()->with('success', 'Request cancelled successfully.');
+        }
+
+    public function rateRequest(Request $request)
+        {
+            $request->validate([
+                'request_id' => 'required|exists:breakdown_requests,id',
+                'rating'     => 'required|integer|min:1|max:5',
+                'review'     => 'nullable|string',
+            ]);
+
+            $breakdownRequest = BreakdownRequest::where('user_id', auth()->id())
+                ->findOrFail($request->request_id);
+
+            \App\Models\RatingReview::create([
+                'breakdown_request_id' => $breakdownRequest->id,
+                'user_id'              => auth()->id(),
+                'mechanic_id'          => $breakdownRequest->mechanic_id,
+                'rating'               => $request->rating,
+                'review'               => $request->review,
+            ]);
+
+            // Update mechanic average rating
+            if ($breakdownRequest->mechanic_id) {
+                $avgRating = \App\Models\RatingReview::where('mechanic_id', $breakdownRequest->mechanic_id)
+                    ->avg('rating');
+                \App\Models\Mechanic::where('id', $breakdownRequest->mechanic_id)
+                    ->update(['rating' => round($avgRating, 2)]);
+            }
+
+            return back()->with('success', 'Thank you for your review!');
+        }
+
+    public function requestDetails($id)
+        {
+            $req = BreakdownRequest::where('user_id', auth()->id())
+                ->with(['serviceCategory', 'vehicleCategory', 'mechanic.user'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'request_number' => $req->request_number,
+                'service'        => $req->serviceCategory->name ?? 'N/A',
+                'vehicle'        => $req->vehicleCategory->name ?? 'N/A',
+                'status'         => ucwords(str_replace('_', ' ', $req->status)),
+                'price'          => $req->price ? 'KSh '.number_format($req->price) : 'Not set',
+                'address'        => $req->user_address ?? 'N/A',
+                'problem'        => $req->problem_description,
+                'mechanic'       => $req->mechanic->user->name ?? 'Not assigned',
+                'date'           => $req->created_at->format('M d, Y h:i A'),
+            ]);
+        }
 
     public function mechanics()
     {

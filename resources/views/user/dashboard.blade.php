@@ -60,40 +60,40 @@
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                {{-- <div class="stat-icon blue"><i class="fas fa-list"></i></div> --}}
+                <div class="stat-icon blue"><i class="fas fa-list"></i></div>
                 <div class="stat-info">
                     <h3>{{ $totalRequests }}</h3>
-                    <p style="color: #3b82f6">Total Requests</p>
+                    <p>Total Requests</p>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                {{-- <div class="stat-icon orange"><i class="fas fa-spinner"></i></div> --}}
+                <div class="stat-icon orange"><i class="fas fa-spinner"></i></div>
                 <div class="stat-info">
                     <h3>{{ $activeRequests }}</h3>
-                    <p style="color: #f97316">Active Request</p>
+                    <p>Active Request</p>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                {{-- <div class="stat-icon green"><i class="fas fa-check-circle"></i></div> --}}
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
                 <div class="stat-info">
                     <h3>{{ $completedRequests }}</h3>
-                    <p style="color: #3b82f6">Completed Request</p>
+                    <p>Completed Request</p>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                {{-- <div class="stat-icon purple"><i class="fas fa-heart"></i></div> --}}
+                <div class="stat-icon purple"><i class="fas fa-heart"></i></div>
                 <div class="stat-info">
                     <h3>{{ $favourites }}</h3>
-                    <p style="color: #f97316">Favourites</p>
+                    <p>Favourites</p>
                 </div>
             </div>
         </div>
@@ -153,7 +153,7 @@
                         <div class="d-flex gap-2">
                             <a href="{{ route('user.track', $activeRequest->id) }}"
                             class="btn btn-fixgo btn-sm flex-1" style="width:auto;flex:1">
-                                <i class="fas fa-map-marker-alt me-1"></i> Track
+                               <span style="color: white" ><i class="fas fa-map-marker-alt me-1"></i> Track</span>
                             </a>
                             <button class="btn btn-outline-danger btn-sm flex-1">
                                 <i class="fas fa-times me-1"></i> Cancel
@@ -187,37 +187,37 @@
                                 <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)">
                                     <i class="fas fa-plus-circle"></i>
                                 </div>
-                                <span style="color: #f97316">Request Help</span>
+                                <span>Request Help</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('user.mechanics') }}"
                             class="quick-action-card text-decoration-none">
-                             {{-- style="background:linear-gradient(135deg,#10b981,#059669) --}}
-                                <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)">
+                            {{-- style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)" --}}
+                                <div class="qa-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
                                     <i class="fas fa-search"></i>
                                 </div>
-                                <span style="color: #3b82f6">Find Mechanic</span>
+                                <span>Find Mechanic</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('user.my-requests') }}"
                             class="quick-action-card text-decoration-none">
-                            {{-- style="background:linear-gradient(135deg,#f97316,#ef4444)" --}}
-                                <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)">
+                            {{-- style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)" --}}
+                                <div class="qa-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">
                                     <i class="fas fa-history"></i>
                                 </div>
-                                <span style="color: #3b82f6">My Requests</span>
+                                <span>My Requests</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('user.favourites') }}"
                             class="quick-action-card text-decoration-none">
-                            {{-- style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)" --}}
-                                <div class="qa-icon" style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)" >
+                            {{-- style="background:linear-gradient(135deg,#3b82f6,#1a3c6e)" --}}
+                                <div class="qa-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"  >
                                     <i class="fas fa-heart" ></i>
                                 </div>
-                                <span style="color: #f97316">Favourites</span>
+                                <span>Favourites</span>
                             </a>
                         </div>
                     </div>

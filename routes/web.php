@@ -41,7 +41,7 @@ Route::middleware(['auth','mechanic'])->prefix('mechanic')->name('mechanic.')->g
 Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(function(){
     Route::get('/dashboard',[UserDashboardController::class,'index'])->name('dashboard');
     Route::get('/request-assistance',[UserDashboardController::class,'requestAssistance'])->name('request-assistance');
-    Route::get('/my-requests',[UserDashboardController::class,'myRequest'])->name('my-requests');
+    Route::get('/my-requests', [UserDashboardController::class, 'myRequests'])->name('my-requests');
     Route::get('/mechanics',[UserDashboardController::class,'mechanics'])->name('mechanics');
     Route::get('/mechanics/{id}',[UserDashboardController::class,'mechanicProfile'])->name('mechanic-profile');
     Route::get('/track/{id}',[UserDashboardController::class,'trackMechanic'])->name('track');
@@ -49,6 +49,9 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::get('/notifications',[UserDashboardController::class,'notifications'])->name('notifications');
     Route::get('/profile',[UserDashboardController::class,'profile'])->name('profile');
     Route::post('/request-assistance',[UserDashboardController::class,'storeRequest'])->name('store-request');
+    Route::patch('/request/{id}/cancel', [UserDashboardController::class, 'cancelRequest'])->name('cancel-request');
+    Route::post('/rate-request', [UserDashboardController::class, 'rateRequest'])->name('rate-request');
+    Route::get('/request-details/{id}', [UserDashboardController::class, 'requestDetails'])->name('request-details');
 });
 
 
