@@ -49,7 +49,7 @@
             <p class="sos-text">Need urgent help?<br>
                 <small>Tap SOS for immediate assistance</small>
             </p>
-            <button class="btn-sos">
+            <button class="btn-sos" onclick="triggerSOS()">
                 <i class="fas fa-exclamation-triangle me-2"></i> SOS
             </button>
         </div>
@@ -145,6 +145,182 @@
         }
     });
 </script>
+
+{{-- SOS Modal --}}
+@if(auth()->user()->role === 'user')
+<div class="modal fade" id="sosModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px;border:3px solid #ef4444">
+            <div class="modal-body p-0">
+
+                {{-- SOS Header --}}
+                <div style="background:linear-gradient(135deg,#dc2626,#ef4444);
+                            padding:30px;text-align:center;border-radius:17px 17px 0 0">
+                    <div style="width:80px;height:80px;background:rgba(255,255,255,0.2);
+                                border-radius:50%;margin:0 auto 16px;display:flex;
+                                align-items:center;justify-content:center">
+                        <i class="fas fa-exclamation-triangle"
+                           style="font-size:36px;color:white"></i>
+                    </div>
+                    <h4 style="color:white;font-weight:800;margin:0">EMERGENCY SOS</h4>
+                    <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:14px">
+                        We'll find the nearest mechanic immediately
+                    </p>
+                </div>
+
+                <div class="p-4">
+
+                    {{-- Location Status --}}
+                    <div class="d-flex align-items-center gap-3 p-3 mb-3"
+                         style="background:#fef2f2;border-radius:12px;border:1px solid #fecaca">
+                        <i class="fas fa-map-marker-alt text-danger fa-lg"></i>
+                        <div>
+                            <p style="font-weight:600;color:#dc2626;margin:0;font-size:14px">
+                                Your Location
+                            </p>
+                            <p id="sosLocationText"
+                               style="color:#6b7280;font-size:12px;margin:0">
+                                Getting your location...
+                            </p>
+                        </div>
+                        <button onclick="getSOSLocation()"
+                                class="btn btn-sm btn-outline-danger ms-auto">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
+
+                    {{-- Problem Description --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size:13px">
+                            Describe the Emergency (Optional)
+                        </label>
+                        <textarea id="sosProblem" class="form-control" rows="2"
+                                  placeholder="e.g. Car won't start on Ngong Road..."></textarea>
+                    </div>
+
+                    <input type="hidden" id="sosLat">
+                    <input type="hidden" id="sosLng">
+
+                    {{-- Action Buttons --}}
+                    <div class="d-flex gap-2">
+                        <button onclick="submitSOS()"
+                                class="btn flex-1"
+                                style="background:#dc2626;color:white;
+                                       padding:14px;font-weight:700;
+                                       border-radius:12px;font-size:15px">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Send SOS Now
+                        </button>
+                        <button data-bs-dismiss="modal"
+                                class="btn btn-outline-secondary"
+                                style="padding:14px 20px;border-radius:12px">
+                            Cancel
+                        </button>
+                    </div>
+
+                    {{-- Emergency Contacts --}}
+                    <div class="mt-3 p-3"
+                         style="background:#f8fafc;border-radius:12px">
+                        <p style="font-size:12px;font-weight:700;
+                                  color:#374151;margin-bottom:8px">
+                            EMERGENCY CONTACTS
+                        </p>
+                        <div class="d-flex gap-3">
+                            <a href="tel:999"
+                               class="btn btn-sm btn-outline-danger flex-1">
+                                <i class="fas fa-phone me-1"></i> Police 999
+                            </a>
+                            <a href="tel:911"
+                               class="btn btn-sm btn-outline-warning flex-1">
+                                <i class="fas fa-ambulance me-1"></i> Ambulance 911
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function triggerSOS() {
+    const modal = new bootstrap.Modal(document.getElementById('sosModal'));
+    modal.show();
+    getSOSLocation();
+}
+
+function getSOSLocation() {
+    const text = document.getElementById('sosLocationText');
+    text.textContent = 'Getting your location...';
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                document.getElementById('sosLat').value = lat;
+                document.getElementById('sosLng').value = lng;
+                // Reverse geocode
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                    .then(r => r.json())
+                    .then(data => {
+                        text.textContent = data.display_name ?? `${lat}, ${lng}`;
+                    });
+            },
+            function() {
+                text.textContent = 'Could not get location. Please enter manually.';
+            }
+        );
+    }
+}
+
+function submitSOS() {
+    const lat = document.getElementById('sosLat').value;
+    const lng = document.getElementById('sosLng').value;
+    const problem = document.getElementById('sosProblem').value;
+
+    if (!lat || !lng) {
+        alert('Please allow location access first.');
+        return;
+    }
+
+    fetch('{{ route("user.sos") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ lat, lng, problem })
+    })
+    .then(r => r.json())
+    .then(data => {
+        bootstrap.Modal.getInstance(document.getElementById('sosModal')).hide();
+        showSOSSuccess(data.request_number);
+    })
+    .catch(() => {
+        alert('SOS sent! We are finding the nearest mechanic.');
+    });
+}
+
+function showSOSSuccess(requestNumber) {
+    const div = document.createElement('div');
+    div.innerHTML = `
+        <div style="position:fixed;top:20px;right:20px;z-index:9999;
+                    background:#10b981;color:white;padding:16px 24px;
+                    border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.2);
+                    max-width:320px">
+            <div style="font-weight:700;font-size:15px;margin-bottom:4px">
+                <i class="fas fa-check-circle me-2"></i> SOS Sent Successfully!
+            </div>
+            <div style="font-size:13px;opacity:0.9">
+                Request ${requestNumber} created. Finding nearest mechanic...
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 5000);
+}
+</script>
+@endif
 
 </body>
 </html>

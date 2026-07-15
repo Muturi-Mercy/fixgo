@@ -29,7 +29,7 @@
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
     </a>
-    <a href="#" class="nav-link">
+    <a href="{{ route('user.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
@@ -43,10 +43,10 @@
         <div>
             {{-- <h4 style="color:#1a3c6e; font-weight:700; margin:0">
                 Welcome back, {{ auth()->user()->name }}! 
-            </h4>
-            <p class="text-muted mb-0" style="font-size:14px">
+            </h4>style="font-size:14px" --}}
+            <p class="text-muted mb-0" style="color:#1a3c6e; font-weight:700; margin:0">
                 Here's what's happening with your requests today.
-            </p> --}}
+            </p>
         </div>
 
         <a href="{{ route('user.request-assistance') }}" class="btn btn-fixgo"

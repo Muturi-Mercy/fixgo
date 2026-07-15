@@ -56,6 +56,12 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::patch('/profile', [UserDashboardController::class, 'updateProfile'])->name('update-profile');
     Route::patch('/profile/password', [UserDashboardController::class, 'updatePassword'])->name('update-password');
     Route::post('/profile/photo', [UserDashboardController::class, 'updatePhoto'])->name('update-photo');
+    Route::get('/notifications',[UserDashboardController::class,'notifications'])->name('notifications');
+    Route::patch('/notifications/mark-all-read',[UserDashboardController::class,'markAllRead'])->name('notifications.mark-all-read');
+    Route::patch('/notifications/{id}/read',[UserDashboardController::class,'markRead'])->name('notifications.mark-read');
+    Route::get('/settings', [UserDashboardController::class, 'settings'])->name('settings');
+    Route::patch('/settings', [UserDashboardController::class, 'updateSettings'])->name('update-settings');
+    Route::post('/sos', [UserDashboardController::class, 'sos'])->name('sos');
 });
 
 

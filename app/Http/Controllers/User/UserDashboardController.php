@@ -166,7 +166,21 @@ class UserDashboardController extends Controller
 
     public function notifications()
     {
-        return view('user.notifications');
+        $notifications = auth()->user()->notifications()->latest()->paginate(15);
+        return view('user.notifications', compact('notifications'));
+    }
+
+    public function markAllRead()
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back()->with('success', 'All notifications marked as read.');
+    }
+
+    public function markRead($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+        return back();
     }
 
     public function profile()
@@ -281,5 +295,42 @@ class UserDashboardController extends Controller
         ]);
 
         return response()->json(['favourited' => true]);
+    }
+
+    public function settings()
+    {
+        return view('user.settings');
+    }
+
+    public function updateSettings(Request $request)
+    {
+        return back()->with('success','Settiings Updated Successfully!');
+    }
+
+    public function sos(Request $request)
+    {
+        $requestNumber = 'SOS#' . strtoupper(uniqid());
+
+        // Get first available service category (Battery Jump as default)
+        $serviceCategory = ServiceCategory::first();
+        $vehicleCategory = VehicleCategory::first();
+
+        $sosRequest = BreakdownRequest::create([
+            'request_number'      => $requestNumber,
+            'user_id'             => auth()->id(),
+            'service_category_id' => $serviceCategory->id,
+            'vehicle_category_id' => $vehicleCategory->id,
+            'problem_description' => $request->problem ?? 'SOS Emergency Request',
+            'user_latitude'       => $request->lat,
+            'user_longitude'      => $request->lng,
+            'user_address'        => 'SOS Location',
+            'status'              => 'pending',
+        ]);
+
+        return response()->json([
+            'success'        => true,
+            'request_number' => $requestNumber,
+            'message'        => 'SOS sent! Finding nearest mechanic...'
+        ]);
     }
 }

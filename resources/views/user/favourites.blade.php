@@ -28,7 +28,7 @@
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
     </a>
-    <a href="#" class="nav-link">
+    <a href="{{ route('user.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
@@ -43,10 +43,10 @@
     <div>
         {{-- <h4 style="color:#1a3c6e;font-weight:700;margin:0">
             <i class="fas fa-heart me-2 text-danger"></i> Favourite Mechanics
-        </h4>
-        <p class="text-muted mb-0" style="font-size:14px">
+        </h4>style="font-size:14px" --}}
+        <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0" >
             Your saved mechanics for quick access.
-        </p> --}}
+        </p>
     </div>
     <a href="{{ route('user.mechanics') }}" class="btn btn-outline-primary"
        style="padding:10px 20px">

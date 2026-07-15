@@ -29,7 +29,7 @@
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
     </a>
-    <a href="#" class="nav-link">
+    <a href="{{ route('user.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
@@ -41,16 +41,16 @@
 @section('content')
 
 {{-- Header --}}
-{{-- <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 style="color:#1a3c6e; font-weight:700; margin:0">
+        {{-- <h4 style="color:#1a3c6e; font-weight:700; margin:0">
             <i class="fas fa-search me-2 text-primary"></i> Find Mechanics
-        </h4>
-        <p class="text-muted mb-0" style="font-size:14px">
+        </h4>style="font-size:14px" --}}
+        <p class="text-muted mb-0" style="color:#1a3c6e; font-weight:700; margin:0">
             Browse verified mechanics near you.
         </p>
     </div>
-</div> --}}
+</div>
 
 {{-- Search & Filter Bar --}}
 <div class="fixgo-card mb-4">
