@@ -181,7 +181,7 @@
                                     <a href="{{ route('user.track', $req->id) }}"
                                        class="btn btn-sm btn-fixgo"
                                        style="width:auto;padding:7px 14px">
-                                        <i class="fas fa-map-marker-alt me-1"></i> Track
+                                        <i class="fas fa-map-marker-alt me-1" style="color: red"></i> <span style="color: white">Track</span>
                                     </a>
                                 @endif
 

@@ -34,6 +34,23 @@ Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(func
 
 Route::middleware(['auth','mechanic'])->prefix('mechanic')->name('mechanic.')->group(function(){
     Route::get('/dashboard',[MechanicDashboardController::class,'index'])->name('dashboard');
+    Route::get('/service-requests',[MechanicDashboardController::class,'serviceRequests'])->name('service-requests');
+    Route::get('/my-jobs', [MechanicDashboardController::class, 'myJobs'])->name('my-jobs');
+    Route::get('/earnings', [MechanicDashboardController::class, 'earnings'])->name('earnings');
+    Route::get('/portfolio', [MechanicDashboardController::class, 'portfolio'])->name('portfolio');
+    Route::get('/portfolio/create', [MechanicDashboardController::class, 'createPortfolio'])->name('portfolio.create');
+    Route::post('/portfolio', [MechanicDashboardController::class, 'storePortfolio'])->name('portfolio.store');
+    Route::delete('/portfolio/{id}', [MechanicDashboardController::class, 'deletePortfolio'])->name('portfolio.delete');
+    Route::get('/reviews', [MechanicDashboardController::class, 'reviews'])->name('reviews');
+    Route::get('/profile', [MechanicDashboardController::class, 'profile'])->name('profile');
+    Route::patch('/profile', [MechanicDashboardController::class, 'updateProfile'])->name('update-profile');
+    Route::patch('/profile/password', [MechanicDashboardController::class, 'updatePassword'])->name('update-password');
+    Route::post('/profile/photo', [MechanicDashboardController::class, 'updatePhoto'])->name('update-photo');
+    Route::patch('/availability', [MechanicDashboardController::class, 'updateAvailability'])->name('update-availability');
+    Route::patch('/request/{id}/accept', [MechanicDashboardController::class, 'acceptRequest'])->name('accept-request');
+    Route::patch('/request/{id}/decline', [MechanicDashboardController::class, 'declineRequest'])->name('decline-request');
+    Route::patch('/request/{id}/status', [MechanicDashboardController::class, 'updateRequestStatus'])->name('update-request-status'); 
+    
 });
 
 //User Routes

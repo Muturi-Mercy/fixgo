@@ -142,7 +142,7 @@
                 {{-- Action Buttons --}}
                 <a href="{{ route('user.request-assistance') }}"
                    class="btn btn-fixgo w-100 mb-2">
-                    <i class="fas fa-tools me-2"></i> Request Service
+                    <span style="color: white"><i class="fas fa-tools me-2"></i> Request Service</span>
                 </a>
                 <button class="btn btn-outline-primary w-100"
                         onclick="toggleFavourite({{ $mechanic->id }}, this)">
