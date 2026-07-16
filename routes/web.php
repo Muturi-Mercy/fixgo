@@ -25,9 +25,51 @@ Route::middleware('auth')->group(function () {
 
 
 //Admin Routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function(){
-    Route::get('/dashboard',[AdminDashboardController::class,'index'])->name('dashboard');
+    // Users
+    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
+    Route::get('/users/{id}', [AdminDashboardController::class, 'viewUser'])->name('users.view');
+    Route::patch('/users/{id}/toggle-status', [AdminDashboardController::class, 'toggleUserStatus'])->name('users.toggle-status');
+    Route::delete('/users/{id}', [AdminDashboardController::class, 'deleteUser'])->name('users.delete');
+
+    // Mechanics
+    Route::get('/mechanics', [AdminDashboardController::class, 'mechanics'])->name('mechanics');
+    Route::get('/mechanics/{id}', [AdminDashboardController::class, 'viewMechanic'])->name('mechanics.view');
+    Route::patch('/mechanics/{id}/approve', [AdminDashboardController::class, 'approveMechanic'])->name('mechanics.approve');
+    Route::patch('/mechanics/{id}/reject', [AdminDashboardController::class, 'rejectMechanic'])->name('mechanics.reject');
+    Route::patch('/mechanics/{id}/undo-rejection', [AdminDashboardController::class, 'undoRejection'])->name('mechanics.undo-rejection');
+    Route::patch('/mechanics/{id}/toggle-status', [AdminDashboardController::class, 'toggleMechanicStatus'])->name('mechanics.toggle-status');
+
+    // Requests
+    Route::get('/requests', [AdminDashboardController::class, 'requests'])->name('requests');
+    Route::get('/requests/{id}', [AdminDashboardController::class, 'viewRequest'])->name('requests.view');
+
+    // Categories
+    Route::get('/categories', [AdminDashboardController::class, 'categories'])->name('categories');
+    Route::post('/categories/service', [AdminDashboardController::class, 'storeServiceCategory'])->name('categories.service.store');
+    Route::delete('/categories/service/{id}', [AdminDashboardController::class, 'deleteServiceCategory'])->name('categories.service.delete');
+    Route::post('/categories/vehicle', [AdminDashboardController::class, 'storeVehicleCategory'])->name('categories.vehicle.store');
+    Route::delete('/categories/vehicle/{id}', [AdminDashboardController::class, 'deleteVehicleCategory'])->name('categories.vehicle.delete');
+
+    // Reports
+    Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
+
+    // Reviews
+    Route::get('/reviews', [AdminDashboardController::class, 'reviews'])->name('reviews');
+    Route::delete('/reviews/{id}', [AdminDashboardController::class, 'deleteReview'])->name('reviews.delete');
+
+    // Announcements
+    Route::get('/announcements', [AdminDashboardController::class, 'announcements'])->name('announcements');
+    Route::post('/announcements', [AdminDashboardController::class, 'storeAnnouncement'])->name('announcements.store');
+    Route::delete('/announcements/{id}', [AdminDashboardController::class, 'deleteAnnouncement'])->name('announcements.delete');
+
+    // Settings
+    Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('settings');
+
+    // Analytics API
+    Route::get('/analytics/requests', [AdminDashboardController::class, 'requestsAnalytics'])->name('analytics.requests');
 });
 
 //Mechanic Routes

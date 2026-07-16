@@ -7,4 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class VehicleCategory extends Model
 {
     protected $fillable = ['name','icon','is_active'];
+    
+    public function breakdownRequests()
+    {
+        return $this->hasMany(BreakdownRequest::class);
+    }
+
+
 }

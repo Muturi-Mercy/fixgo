@@ -7,4 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceCategory extends Model
 {
     protected $fillable = ['name','icon','description','is_active'];
+
+    public function breakdownRequests()
+{
+    return $this->hasMany(BreakdownRequest::class);
+}
+
 }
