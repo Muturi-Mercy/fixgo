@@ -8,6 +8,7 @@ use App\Models\Mechanic;
 use App\Models\ServiceCategory;
 use App\Models\VehicleCategory;
 use App\Models\User;
+use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 
 
@@ -332,5 +333,62 @@ class UserDashboardController extends Controller
             'request_number' => $requestNumber,
             'message'        => 'SOS sent! Finding nearest mechanic...'
         ]);
+    }
+
+    public function getMechanicLocation($id)
+    {
+        $mechanic = Mechanic::findOrFail($id);
+        return response()->json([
+            'latitude'  => $mechanic->latitude,
+            'longitude' => $mechanic->longitude,
+        ]);
+    }
+
+    public function chat($requestId)
+    {
+        $request = BreakdownRequest::where('user_id', auth()->id())
+            ->with(['mechanic.user', 'serviceCategory'])
+            ->findOrFail($requestId);
+        $messages = ChatMessage::where('breakdown_request_id', $requestId)
+            ->with('sender')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        return view('user.chat', compact('request', 'messages'));
+    }
+
+    public function sendMessage(Request $request, $requestId)
+    {
+        $request->validate(['message' => 'required|string|max:1000']);
+
+        $breakdownRequest = BreakdownRequest::where('user_id', auth()->id())
+            ->findOrFail($requestId);
+
+        ChatMessage::create([
+            'breakdown_request_id' => $requestId,
+            'sender_id'            => auth()->id(),
+            'receiver_id'          => $breakdownRequest->mechanic->user_id,
+            'message'              => $request->message,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getMessages($requestId)
+    {
+        $messages = ChatMessage::where('breakdown_request_id', $requestId)
+            ->with('sender')
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function($msg) {
+                return [
+                    'id'        => $msg->id,
+                    'message'   => $msg->message,
+                    'sender'    => $msg->sender->name,
+                    'is_mine'   => $msg->sender_id === auth()->id(),
+                    'time'      => $msg->created_at->format('h:i A'),
+                ];
+            });
+
+        return response()->json($messages);
     }
 }

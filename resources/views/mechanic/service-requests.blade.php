@@ -23,11 +23,14 @@
     <a href="{{ route('mechanic.reviews') }}" class="nav-link">
         <i class="fas fa-star"></i> Reviews
     </a>
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    </a>
+    <a href="{{ route('mechanic.settings') }}" class="nav-link">
+        <i class="fas fa-cog"></i> Settings
+    </a>
     <a href="{{ route('mechanic.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -200,10 +203,12 @@
                 <div class="col-md-6">
                     <div class="fixgo-card">
                         <div class="fixgo-card-body">
+
+                            {{-- Header --}}
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex gap-3 align-items-center">
                                     <div class="stat-icon blue"
-                                         style="width:46px;height:46px;font-size:18px;flex-shrink:0">
+                                        style="width:46px;height:46px;font-size:18px;flex-shrink:0">
                                         <i class="{{ getServiceIcon($req->serviceCategory->name ?? '') }}"></i>
                                     </div>
                                     <div>
@@ -220,34 +225,72 @@
                                 </span>
                             </div>
 
+                            {{-- Customer Info --}}
                             <div class="p-3 mb-3"
-                                 style="background:#f8fafc;border-radius:10px">
+                                style="background:#f8fafc;border-radius:10px">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <i class="fas fa-user text-primary" style="width:16px"></i>
                                     <span style="font-size:13px;font-weight:600">
                                         {{ $req->user->name }}
                                     </span>
                                     <a href="tel:{{ $req->user->phone }}"
-                                       class="btn btn-sm btn-outline-success ms-auto"
-                                       style="padding:3px 10px;font-size:11px">
+                                    class="btn btn-sm btn-outline-success ms-auto"
+                                    style="padding:3px 10px;font-size:11px">
                                         <i class="fas fa-phone"></i> Call
                                     </a>
                                 </div>
-                                <div class="d-flex align-items-start gap-2">
+                                <div class="d-flex align-items-start gap-2 mb-2">
                                     <i class="fas fa-map-marker-alt text-danger mt-1"
-                                       style="width:16px"></i>
+                                    style="width:16px"></i>
                                     <span style="font-size:13px;color:#6b7280">
                                         {{ \Illuminate\Support\Str::limit($req->user_address ?? 'Location on map', 50) }}
                                     </span>
                                 </div>
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="fas fa-comment text-primary mt-1"
+                                    style="width:16px"></i>
+                                    <span style="font-size:13px;color:#6b7280">
+                                        {{ \Illuminate\Support\Str::limit($req->problem_description, 50) }}
+                                    </span>
+                                </div>
                             </div>
 
-                            {{-- Update Status --}}
+                            {{-- Current Charge --}}
+                            @if($req->price)
+                            <div class="d-flex align-items-center gap-2 mb-3 p-2"
+                                style="background:#d1fae5;border-radius:8px">
+                                <i class="fas fa-tag text-success"></i>
+                                <span style="font-size:13px;font-weight:700;color:#065f46">
+                                    Charge: KSh {{ number_format($req->price) }}
+                                </span>
+                            </div>
+                            @endif
+
+                            {{-- Update Status Form with Price --}}
                             <form method="POST"
-                                  action="{{ route('mechanic.update-request-status', $req->id) }}">
+                                action="{{ route('mechanic.update-request-status', $req->id) }}">
                                 @csrf @method('PATCH')
-                                <div class="d-flex gap-2">
-                                    <select name="status" class="form-select form-control"
+
+                                {{-- Set/Update Price --}}
+                                <div class="mb-2">
+                                    <label style="font-size:12px;font-weight:700;
+                                                color:#374151;margin-bottom:4px;display:block">
+                                        <i class="fas fa-tag me-1 text-primary"></i>
+                                        Set Charge (KSh)
+                                    </label>
+                                    <input type="number"
+                                        name="price"
+                                        class="form-control"
+                                        style="font-size:13px;padding:8px 12px"
+                                        value="{{ $req->price }}"
+                                        placeholder="e.g. 1500"
+                                        min="0">
+                                </div>
+
+                                {{-- Status Selector --}}
+                                <div class="d-flex gap-2 mb-3">
+                                    <select name="status"
+                                            class="form-select form-control"
                                             style="font-size:13px">
                                         <option value="accepted"
                                             {{ $req->status==='accepted'?'selected':'' }}>
@@ -277,6 +320,14 @@
                                     </button>
                                 </div>
                             </form>
+
+                            {{-- Chat Button --}}
+                            <a href="{{ route('mechanic.chat', $req->id) }}"
+                            class="btn btn-outline-primary w-100"
+                            style="border-radius:10px;font-weight:600">
+                                <i class="fas fa-comment me-2"></i> Chat with Customer
+                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -386,4 +437,58 @@
     border-color: #f97316;
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    // Auto-share location when status is on_the_way
+document.querySelectorAll('select[name="status"]').forEach(select => {
+    select.addEventListener('change', function() {
+        if (this.value === 'on_the_way') {
+            startSharingLocation();
+        }
+    });
+});
+
+let locationInterval;
+
+function startSharingLocation() {
+    if (navigator.geolocation) {
+        // Share immediately
+        shareLocation();
+        // Then every 15 seconds
+        locationInterval = setInterval(shareLocation, 15000);
+        showToast('Live location sharing started', 'success');
+    }
+}
+
+function shareLocation() {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+        fetch('{{ route("mechanic.update-location") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude
+            })
+        });
+    });
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position:fixed;top:80px;right:20px;z-index:9999;
+        background:${type === 'success' ? '#10b981' : '#ef4444'};
+        color:white;padding:12px 20px;border-radius:12px;
+        font-size:13px;font-weight:600;
+        box-shadow:0 8px 25px rgba(0,0,0,0.2)`;
+    toast.innerHTML = `<i class="fas fa-check-circle me-2"></i>${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
 @endpush

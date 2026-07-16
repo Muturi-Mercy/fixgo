@@ -22,11 +22,14 @@
     <a href="{{ route('mechanic.reviews') }}" class="nav-link">
         <i class="fas fa-star"></i> Reviews
     </a>
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    </a>
+    <a href="{{ route('mechanic.settings') }}" class="nav-link">
+        <i class="fas fa-cog"></i> Settings
+    </a>
     <a href="{{ route('mechanic.profile') }}" class="nav-link active">
         <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -192,15 +195,53 @@
                                                   $mechanic->years_of_experience) }}">
                         </div>
 
-                        <div class="col-12">
+                       <div class="col-12">
                             <label class="form-label fw-bold" style="font-size:13px">
                                 <i class="fas fa-map-marker-alt me-1 text-primary"></i>
                                 Location / Service Area
                             </label>
-                            <input type="text" name="location_address" class="form-control"
-                                   value="{{ old('location_address',
-                                                  $mechanic->location_address) }}"
-                                   placeholder="e.g. Nairobi, Kenya">
+
+                            {{-- Location Buttons --}}
+                            <div class="d-flex gap-2 mb-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                        onclick="getCurrentLocation()">
+                                    <i class="fas fa-crosshairs me-1"></i> Use Current Location
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        onclick="toggleLocationMap()">
+                                    <i class="fas fa-map me-1"></i> Pin on Map
+                                </button>
+                            </div>
+
+                            {{-- Location Status --}}
+                            <div id="locationStatus" class="text-muted mb-2"
+                                style="font-size:12px;display:none">
+                                <i class="fas fa-spinner fa-spin me-1"></i> Getting location...
+                            </div>
+
+                            {{-- Map --}}
+                            <div id="locationMapContainer" style="display:none;margin-bottom:12px">
+                                <div id="profileLocationMap"
+                                    style="height:250px;border-radius:12px;
+                                            border:2px solid #e5e7eb"></div>
+                                <p class="text-muted mt-2 mb-0" style="font-size:12px">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Click on the map or drag the marker to set your location.
+                                </p>
+                            </div>
+
+                            {{-- Address Input --}}
+                            <input type="text" name="location_address"
+                                id="locationAddressInput"
+                                class="form-control"
+                                value="{{ old('location_address', $mechanic->location_address) }}"
+                                placeholder="e.g. Nairobi, Kenya — or use buttons above">
+
+                            {{-- Hidden lat/lng --}}
+                            <input type="hidden" name="latitude" id="profileLat"
+                                value="{{ $mechanic->latitude }}">
+                            <input type="hidden" name="longitude" id="profileLng"
+                                value="{{ $mechanic->longitude }}">
                         </div>
 
                         <div class="col-md-6">
@@ -295,3 +336,91 @@
 </div>
 
 @endsection
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+@endpush
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let profileMap, profileMarker;
+let mapVisible = false;
+
+function getCurrentLocation() {
+    const status = document.getElementById('locationStatus');
+    status.style.display = 'block';
+    status.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Getting your location...';
+
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            document.getElementById('profileLat').value = lat;
+            document.getElementById('profileLng').value = lng;
+
+            // Reverse geocode
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('locationAddressInput').value =
+                        data.display_name ?? `${lat}, ${lng}`;
+                    status.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> Location found!';
+                });
+
+            // Update map if visible
+            if (profileMap) {
+                profileMap.setView([lat, lng], 15);
+                if (profileMarker) profileMarker.setLatLng([lat, lng]);
+            }
+        },
+        function() {
+            status.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i> Could not get location.';
+        }
+    );
+}
+
+function toggleLocationMap() {
+    const container = document.getElementById('locationMapContainer');
+    mapVisible = !mapVisible;
+    container.style.display = mapVisible ? 'block' : 'none';
+
+    if (mapVisible && !profileMap) {
+        const lat = parseFloat(document.getElementById('profileLat').value) || -1.2921;
+        const lng = parseFloat(document.getElementById('profileLng').value) || 36.8219;
+
+        profileMap = L.map('profileLocationMap').setView([lat, lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(profileMap);
+
+        profileMarker = L.marker([lat, lng], { draggable: true }).addTo(profileMap);
+
+        // Click to move marker
+        profileMap.on('click', function(e) {
+            profileMarker.setLatLng(e.latlng);
+            updateLocationFromLatLng(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Drag marker
+        profileMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            updateLocationFromLatLng(pos.lat, pos.lng);
+        });
+    }
+}
+
+function updateLocationFromLatLng(lat, lng) {
+    document.getElementById('profileLat').value = lat;
+    document.getElementById('profileLng').value = lng;
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('locationAddressInput').value =
+                data.display_name ?? `${lat}, ${lng}`;
+        });
+}
+</script>
+@endpush

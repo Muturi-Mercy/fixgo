@@ -146,7 +146,7 @@
                 </a>
                 <button class="btn btn-outline-primary w-100"
                         onclick="toggleFavourite({{ $mechanic->id }}, this)">
-                    <i class="fas fa-heart me-2"></i> Save to Favourites
+                    <span style="color: red"><i class="fas fa-heart me-2"></i></span> Save to Favourites
                 </button>
             </div>
         </div>

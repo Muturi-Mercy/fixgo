@@ -49,8 +49,19 @@ Route::middleware(['auth','mechanic'])->prefix('mechanic')->name('mechanic.')->g
     Route::patch('/availability', [MechanicDashboardController::class, 'updateAvailability'])->name('update-availability');
     Route::patch('/request/{id}/accept', [MechanicDashboardController::class, 'acceptRequest'])->name('accept-request');
     Route::patch('/request/{id}/decline', [MechanicDashboardController::class, 'declineRequest'])->name('decline-request');
-    Route::patch('/request/{id}/status', [MechanicDashboardController::class, 'updateRequestStatus'])->name('update-request-status'); 
-    
+    Route::patch('/request/{id}/status', [MechanicDashboardController::class, 'updateRequestStatus'])->name('update-request-status');
+    Route::get('/portfolio/{id}', [MechanicDashboardController::class, 'viewPortfolio'])->name('portfolio.view');
+    Route::get('/portfolio/{id}/edit', [MechanicDashboardController::class, 'editPortfolio'])->name('portfolio.edit');
+    Route::post('/portfolio/{id}/update', [MechanicDashboardController::class, 'updatePortfolio'])->name('portfolio.update');
+    Route::post('/update-location', [MechanicDashboardController::class, 'updateLocation'])->name('update-location'); 
+    Route::get('/chat/{requestId}', [MechanicDashboardController::class, 'chat'])->name('chat');
+    Route::post('/chat/{requestId}/send', [MechanicDashboardController::class, 'sendMessage'])->name('chat.send');
+    Route::get('/chat/{requestId}/messages', [MechanicDashboardController::class, 'getMessages'])->name('chat.messages');
+    Route::get('/driver/{id}', [MechanicDashboardController::class, 'viewDriver'])->name('view-driver');
+    Route::get('/notifications', [MechanicDashboardController::class, 'notifications'])->name('notifications');
+    Route::patch('/notifications/mark-all-read', [MechanicDashboardController::class, 'markAllRead'])->name('notifications.mark-all-read');
+    Route::get('/settings', [MechanicDashboardController::class, 'settings'])->name('settings');
+    Route::patch('/settings', [MechanicDashboardController::class, 'updateSettings'])->name('update-settings');
 });
 
 //User Routes
@@ -79,6 +90,12 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::get('/settings', [UserDashboardController::class, 'settings'])->name('settings');
     Route::patch('/settings', [UserDashboardController::class, 'updateSettings'])->name('update-settings');
     Route::post('/sos', [UserDashboardController::class, 'sos'])->name('sos');
+    Route::get('/mechanic-location/{id}', [UserDashboardController::class, 'getMechanicLocation'])->name('mechanic-location');
+    Route::get('/chat/{requestId}', [UserDashboardController::class, 'chat'])->name('chat');
+    Route::post('/chat/{requestId}/send', [UserDashboardController::class, 'sendMessage'])->name('chat.send');
+    Route::get('/chat/{requestId}/messages', [UserDashboardController::class, 'getMessages'])->name('chat.messages');
+
+
 });
 
 

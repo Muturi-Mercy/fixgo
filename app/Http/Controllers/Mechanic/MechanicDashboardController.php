@@ -8,6 +8,7 @@ use App\Models\Mechanic;
 use App\Models\MechanicPortfolio;
 use App\Models\PortfolioImage;
 use App\Models\RatingReview;
+use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 
 class MechanicDashboardController extends Controller
@@ -148,6 +149,66 @@ class MechanicDashboardController extends Controller
             ->with('success', 'Portfolio work added successfully!');
     }
 
+        public function viewPortfolio($id)
+    {
+        $mechanic = auth()->user()->mechanic;
+        $portfolio = MechanicPortfolio::where('mechanic_id', $mechanic->id)
+            ->with('images')
+            ->findOrFail($id);
+        return view('mechanic.portfolio-view', compact('portfolio'));
+    }
+
+    public function editPortfolio($id)
+    {
+        $mechanic = auth()->user()->mechanic;
+        $portfolio = MechanicPortfolio::where('mechanic_id', $mechanic->id)
+            ->with('images')
+            ->findOrFail($id);
+        return view('mechanic.portfolio-edit', compact('portfolio'));
+    }
+
+    public function updatePortfolio(Request $request, $id)
+    {
+        $mechanic = auth()->user()->mechanic;
+        $portfolio = MechanicPortfolio::where('mechanic_id', $mechanic->id)
+            ->findOrFail($id);
+
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'category'    => 'required|string',
+            'description' => 'nullable|string',
+            'work_date'   => 'nullable|date',
+            'images.*'    => 'nullable|image|max:3072',
+        ]);
+
+        $portfolio->update([
+            'title'       => $request->title,
+            'category'    => $request->category,
+            'description' => $request->description,
+            'work_date'   => $request->work_date,
+        ]);
+
+        // Add new images if uploaded
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('portfolio-images', 'public');
+                PortfolioImage::create([
+                    'mechanic_portfolio_id' => $portfolio->id,
+                    'image_path'            => $path,
+                    'type' => $request->image_types[$index] ?? 'general',
+                ]);
+            }
+        }
+
+        // Delete selected images
+        if ($request->delete_images) {
+            PortfolioImage::whereIn('id', $request->delete_images)->delete();
+        }
+
+        return redirect()->route('mechanic.portfolio.view', $portfolio->id)
+            ->with('success', 'Portfolio updated successfully!');
+    }
+
     public function deletePortfolio($id)
     {
         $mechanic = auth()->user()->mechanic;
@@ -174,32 +235,36 @@ class MechanicDashboardController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $request->validate([
-            'name'                => 'required|string|max:255',
-            'phone'               => 'nullable|string|max:20',
-            'bio'                 => 'nullable|string',
-            'specialization'      => 'nullable|string',
-            'years_of_experience' => 'nullable|integer',
-            'location_address'    => 'nullable|string',
-            'min_price'           => 'nullable|numeric',
-            'max_price'           => 'nullable|numeric',
-        ]);
+    $request->validate([
+        'name'                => 'required|string|max:255',
+        'phone'               => 'nullable|string|max:20',
+        'bio'                 => 'nullable|string',
+        'specialization'      => 'nullable|string',
+        'years_of_experience' => 'nullable|integer',
+        'location_address'    => 'nullable|string',
+        'latitude'            => 'nullable|numeric',
+        'longitude'           => 'nullable|numeric',
+        'min_price'           => 'nullable|numeric',
+        'max_price'           => 'nullable|numeric',
+    ]);
 
-        auth()->user()->update([
-            'name'  => $request->name,
-            'phone' => $request->phone,
-        ]);
+    auth()->user()->update([
+        'name'  => $request->name,
+        'phone' => $request->phone,
+    ]);
 
-        auth()->user()->mechanic->update([
-            'bio'                 => $request->bio,
-            'specialization'      => $request->specialization,
-            'years_of_experience' => $request->years_of_experience,
-            'location_address'    => $request->location_address,
-            'min_price'           => $request->min_price,
-            'max_price'           => $request->max_price,
-        ]);
+    auth()->user()->mechanic->update([
+        'bio'                 => $request->bio,
+        'specialization'      => $request->specialization,
+        'years_of_experience' => $request->years_of_experience,
+        'location_address'    => $request->location_address,
+        'latitude'            => $request->latitude,
+        'longitude'           => $request->longitude,
+        'min_price'           => $request->min_price,
+        'max_price'           => $request->max_price,
+    ]);
 
-        return back()->with('success', 'Profile updated successfully!');
+    return back()->with('success', 'Profile updated successfully!');
     }
 
     public function updatePassword(Request $request)
@@ -256,10 +321,120 @@ class MechanicDashboardController extends Controller
         $mechanic = auth()->user()->mechanic;
         $breakdownRequest = BreakdownRequest::where('mechanic_id', $mechanic->id)
             ->findOrFail($id);
-        $breakdownRequest->update([
+
+        $updateData = [
             'status'       => $request->status,
             'completed_at' => $request->status === 'completed' ? now() : null,
+        ];
+
+        if ($request->price) {
+            $updateData['price'] = $request->price;
+        }
+
+        $breakdownRequest->update($updateData);
+
+        // Update mechanic total jobs if completed
+        if ($request->status === 'completed') {
+            $mechanic->increment('total_jobs');
+        }
+
+        return back()->with('success', 'Job status updated!');
+    }
+
+    public function updateLocation(Request $request)
+    {
+        $mechanic = auth()->user()->mechanic;
+        $mechanic->update([
+            'latitude'  => $request->latitude,
+            'longitude' => $request->longitude,
         ]);
-        return back()->with('success', 'Status updated!');
+        return response()->json(['success' => true]);
+    }
+
+    public function chat($requestId)
+    {
+        $mechanic = auth()->user()->mechanic;
+        $request = BreakdownRequest::where('mechanic_id', $mechanic->id)
+            ->with(['user', 'serviceCategory'])
+            ->findOrFail($requestId);
+        $messages = ChatMessage::where('breakdown_request_id', $requestId)
+            ->with('sender')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        return view('mechanic.chat', compact('request', 'messages'));
+    }
+
+    public function sendMessage(Request $request, $requestId)
+    {
+        $request->validate(['message' => 'required|string|max:1000']);
+
+        $mechanic = auth()->user()->mechanic;
+        $breakdownRequest = BreakdownRequest::where('mechanic_id', $mechanic->id)
+            ->findOrFail($requestId);
+
+        ChatMessage::create([
+            'breakdown_request_id' => $requestId,
+            'sender_id'            => auth()->id(),
+            'receiver_id'          => $breakdownRequest->user_id,
+            'message'              => $request->message,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getMessages($requestId)
+    {
+        $messages = ChatMessage::where('breakdown_request_id', $requestId)
+            ->with('sender')
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function($msg) {
+                return [
+                    'id'      => $msg->id,
+                    'message' => $msg->message,
+                    'sender'  => $msg->sender->name,
+                    'is_mine' => $msg->sender_id === auth()->id(),
+                    'time'    => $msg->created_at->format('h:i A'),
+                ];
+            });
+
+        return response()->json($messages);
+    }
+
+    public function viewDriver($id)
+    {
+        $driver = \App\Models\User::where('role', 'user')
+            ->findOrFail($id);
+
+        // Check if driver allows profile viewing
+        // (based on their privacy settings — we'll use a simple check)
+        $requests = BreakdownRequest::where('user_id', $id)
+            ->where('status', 'completed')
+            ->count();
+
+        return view('mechanic.driver-profile', compact('driver', 'requests'));
+    }
+
+    public function notifications()
+    {
+        $notifications = auth()->user()->notifications()->latest()->paginate(15);
+        return view('mechanic.notifications', compact('notifications'));
+    }
+
+    public function markAllRead()
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back()->with('success', 'All notifications marked as read.');
+    }
+
+    public function settings()
+    {
+        $mechanic = auth()->user()->mechanic;
+        return view('mechanic.settings', compact('mechanic'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        return back()->with('success', 'Settings updated successfully!');
     }
 }

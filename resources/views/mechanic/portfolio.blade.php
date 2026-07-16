@@ -22,11 +22,14 @@
     <a href="{{ route('mechanic.reviews') }}" class="nav-link">
         <i class="fas fa-star"></i> Reviews
     </a>
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    </a>
+    <a href="{{ route('mechanic.settings') }}" class="nav-link">
+        <i class="fas fa-cog"></i> Settings
+    </a>
     <a href="{{ route('mechanic.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -133,7 +136,8 @@
     <div class="row g-4" id="portfolioContainer">
         @foreach($portfolios as $portfolio)
         <div class="col-md-6 portfolio-item" data-category="{{ $portfolio->category }}">
-            <div class="fixgo-card">
+            <div class="fixgo-card" style="cursor:pointer"
+                onclick="window.location='{{ route('mechanic.portfolio.view', $portfolio->id) }}'">
                 <div class="fixgo-card-header">
                     <div>
                         <h6 style="font-weight:700;color:#1a3c6e;margin:0">

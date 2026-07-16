@@ -63,6 +63,46 @@
             <div id="trackingMap"
                  style="height:450px;border-radius:0 0 14px 14px"></div>
         </div>
+
+        {{-- Distance & ETA Bar --}}
+        @if(in_array($request->status, ['on_the_way','arrived','repairing']))
+        <div class="fixgo-card mt-3">
+            <div class="fixgo-card-body">
+                <div class="row text-center g-3">
+                    <div class="col-4">
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;
+                                    text-transform:uppercase;letter-spacing:1px">
+                            Distance
+                        </div>
+                        <div style="font-size:20px;font-weight:800;color:#1a3c6e"
+                             id="mechanicDistance">
+                            <i class="fas fa-spinner fa-spin" style="font-size:14px"></i>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;
+                                    text-transform:uppercase;letter-spacing:1px">
+                            Status
+                        </div>
+                        <div style="font-size:14px;font-weight:700;color:#f97316"
+                             id="liveStatus">
+                            {{ ucwords(str_replace('_',' ',$request->status)) }}
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;
+                                    text-transform:uppercase;letter-spacing:1px">
+                            Last Updated
+                        </div>
+                        <div style="font-size:14px;font-weight:700;color:#1a3c6e"
+                             id="lastUpdated">
+                            Just now
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
     {{-- Sidebar Info --}}
@@ -134,7 +174,8 @@
                         </p>
                         <div style="color:#f59e0b;font-size:13px">
                             @for($i=1;$i<=5;$i++)
-                                <i class="fas fa-star {{ $i <= $request->mechanic->rating ? '' : 'text-muted' }}"></i>
+                                <i class="fas fa-star
+                                   {{ $i <= $request->mechanic->rating ? '' : 'text-muted' }}"></i>
                             @endfor
                             <span style="color:#6b7280;margin-left:4px">
                                 {{ number_format($request->mechanic->rating,1) }}
@@ -142,6 +183,18 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Live distance display --}}
+                @if(in_array($request->status, ['on_the_way','arrived','repairing']))
+                <div class="p-2 mb-3 text-center"
+                     style="background:#eff6ff;border-radius:10px">
+                    <i class="fas fa-route me-1 text-primary"></i>
+                    <span id="mechanicDistanceSidebar"
+                          style="font-size:13px;font-weight:600;color:#1a3c6e">
+                        Calculating distance...
+                    </span>
+                </div>
+                @endif
 
                 <div class="d-flex gap-2">
                     <a href="tel:{{ $request->mechanic->user->phone }}"
@@ -179,6 +232,14 @@
                         {{ \Illuminate\Support\Str::limit($request->problem_description, 40) }}
                     </span>
                 </div>
+                @if($request->price)
+                <div class="confirm-row">
+                    <span class="confirm-label">Charge</span>
+                    <span class="confirm-value" style="color:#10b981;font-weight:700">
+                        KSh {{ number_format($request->price) }}
+                    </span>
+                </div>
+                @endif
                 <div class="confirm-row">
                     <span class="confirm-label">Date</span>
                     <span class="confirm-value">
@@ -225,7 +286,10 @@
     background: #10b981;
     color: white;
 }
-.timeline-item.done { color: #374151; border-left-color: #10b981; }
+.timeline-item.done {
+    color: #374151;
+    border-left-color: #10b981;
+}
 .timeline-item.current .timeline-icon {
     background: linear-gradient(135deg,#1a3c6e,#3b82f6);
     color: white;
@@ -261,52 +325,156 @@
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const userLat = {{ $request->user_latitude }};
-const userLng = {{ $request->user_longitude }};
-const mechanicLat = {{ $request->mechanic->latitude ?? $request->user_latitude }};
-const mechanicLng = {{ $request->mechanic->longitude ?? $request->user_longitude }};
+const userLat  = {{ $request->user_latitude }};
+const userLng  = {{ $request->user_longitude }};
+const mechanicId = {{ $request->mechanic_id ?? 'null' }};
 
+// Initial mechanic position
+let mechLat = {{ $request->mechanic->latitude ?? $request->user_latitude }};
+let mechLng = {{ $request->mechanic->longitude ?? $request->user_longitude }};
+
+// Init map
 const map = L.map('trackingMap').setView([userLat, userLng], 14);
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-// User marker (blue)
+// Custom icons
 const userIcon = L.divIcon({
-    html: '<div style="background:#3b82f6;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><i class="fas fa-user" style="color:white;font-size:14px"></i></div>',
+    html: `<div style="background:#3b82f6;width:40px;height:40px;border-radius:50%;
+                       display:flex;align-items:center;justify-content:center;
+                       border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)">
+               <i class="fas fa-user" style="color:white;font-size:16px"></i>
+           </div>`,
     className: '',
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
 });
 
-// Mechanic marker (orange)
 const mechanicIcon = L.divIcon({
-    html: '<div style="background:#f97316;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><i class="fas fa-wrench" style="color:white;font-size:14px"></i></div>',
+    html: `<div style="background:#f97316;width:40px;height:40px;border-radius:50%;
+                       display:flex;align-items:center;justify-content:center;
+                       border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)">
+               <i class="fas fa-wrench" style="color:white;font-size:16px"></i>
+           </div>`,
     className: '',
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
 });
 
+// Add user marker
 L.marker([userLat, userLng], { icon: userIcon })
     .addTo(map)
     .bindPopup('<b>Your Location</b>')
     .openPopup();
 
-@if($request->mechanic && $request->mechanic->latitude)
-L.marker([mechanicLat, mechanicLng], { icon: mechanicIcon })
-    .addTo(map)
-    .bindPopup('<b>{{ $request->mechanic->user->name }}</b><br>Your Mechanic');
+@if(in_array($request->status, ['on_the_way','arrived','repairing']))
 
-// Draw line between user and mechanic
-L.polyline([[userLat, userLng], [mechanicLat, mechanicLng]], {
+// Add mechanic marker
+let mechanicMarker = L.marker([mechLat, mechLng], { icon: mechanicIcon })
+    .addTo(map)
+    .bindPopup('<b>{{ $request->mechanic->user->name ?? "Mechanic" }}</b><br>Your Mechanic');
+
+// Draw dashed route line
+let routeLine = L.polyline([[userLat, userLng], [mechLat, mechLng]], {
     color: '#3b82f6',
     weight: 3,
-    dashArray: '8, 8'
+    dashArray: '8, 8',
+    opacity: 0.8
 }).addTo(map);
 
-// Fit bounds to show both markers
-map.fitBounds([[userLat, userLng], [mechanicLat, mechanicLng]], { padding: [40, 40] });
+// Fit map to show both markers
+map.fitBounds([
+    [userLat, userLng],
+    [mechLat, mechLng]
+], { padding: [50, 50] });
+
+// Calculate distance in km using Haversine formula
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Update distance display
+function updateDistanceDisplay(lat, lng) {
+    const dist = calculateDistance(userLat, userLng, lat, lng);
+    const distText = dist < 1
+        ? (dist * 1000).toFixed(0) + ' m away'
+        : dist.toFixed(1) + ' km away';
+
+    const mainDisplay = document.getElementById('mechanicDistance');
+    const sideDisplay = document.getElementById('mechanicDistanceSidebar');
+
+    if (mainDisplay) mainDisplay.textContent = distText;
+    if (sideDisplay) sideDisplay.textContent = distText;
+}
+
+// Initial distance
+updateDistanceDisplay(mechLat, mechLng);
+
+// Poll mechanic location every 10 seconds
+setInterval(function() {
+    if (!mechanicId) return;
+
+    fetch(`/user/mechanic-location/${mechanicId}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.latitude && data.longitude) {
+                const newLat = parseFloat(data.latitude);
+                const newLng = parseFloat(data.longitude);
+
+                // Smoothly move mechanic marker
+                mechanicMarker.setLatLng([newLat, newLng]);
+
+                // Update route line
+                routeLine.setLatLngs([
+                    [userLat, userLng],
+                    [newLat, newLng]
+                ]);
+
+                // Update distance
+                updateDistanceDisplay(newLat, newLng);
+
+                // Update last updated time
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const lastUpdated = document.getElementById('lastUpdated');
+                if (lastUpdated) lastUpdated.textContent = timeStr;
+            }
+        })
+        .catch(err => console.log('Location poll error:', err));
+}, 10000);
+
+@else
+
+// For completed/pending - just show both static markers if mechanic exists
+@if($request->mechanic && $request->mechanic->latitude)
+L.marker([mechLat, mechLng], { icon: mechanicIcon })
+    .addTo(map)
+    .bindPopup('<b>{{ $request->mechanic->user->name ?? "Mechanic" }}</b>');
+
+L.polyline([[userLat, userLng], [mechLat, mechLng]], {
+    color: '#d1d5db',
+    weight: 2,
+    dashArray: '6, 6'
+}).addTo(map);
+
+map.fitBounds([
+    [userLat, userLng],
+    [mechLat, mechLng]
+], { padding: [50, 50] });
+@endif
+
 @endif
 </script>
 @endpush

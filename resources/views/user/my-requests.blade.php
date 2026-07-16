@@ -185,6 +185,14 @@
                                     </a>
                                 @endif
 
+                                {{-- Add chat button for active requests --}}
+                                @if(in_array($req->status, ['accepted','on_the_way','arrived','repairing']))
+                                    <a href="{{ route('user.chat', $req->id) }}"
+                                    class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-comment me-1"></i> Chat
+                                    </a>
+                                @endif
+
                                 {{-- View Details --}}
                                 <button class="btn btn-sm btn-outline-primary"
                                         onclick="showRequestDetails({{ $req->id }})">

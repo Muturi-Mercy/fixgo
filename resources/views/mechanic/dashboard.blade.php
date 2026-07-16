@@ -23,11 +23,14 @@
     <a href="{{ route('mechanic.reviews') }}" class="nav-link">
         <i class="fas fa-star"></i> Reviews
     </a>
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    </a>
+    <a href="{{ route('mechanic.settings') }}" class="nav-link">
+        <i class="fas fa-cog"></i> Settings
+    </a>
     <a href="{{ route('mechanic.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -55,22 +58,22 @@
     </div>
 
     {{-- Availability Toggle --}}
-    <div class="d-flex align-items-center gap-3">
-        <span style="font-size:14px;font-weight:600;color:#374151">Availability:</span>
-        <div class="availability-selector">
-            <button class="avail-btn {{ $mechanic->availability === 'available' ? 'active-available' : '' }}"
-                    onclick="setAvailability('available')">
-                <i class="fas fa-circle me-1" style="font-size:8px"></i> Available
-            </button>
-            <button class="avail-btn {{ $mechanic->availability === 'busy' ? 'active-busy' : '' }}"
-                    onclick="setAvailability('busy')">
-                <i class="fas fa-circle me-1" style="font-size:8px"></i> Busy
-            </button>
-            <button class="avail-btn {{ $mechanic->availability === 'offline' ? 'active-offline' : '' }}"
-                    onclick="setAvailability('offline')">
-                <i class="fas fa-circle me-1" style="font-size:8px"></i> Offline
-            </button>
-        </div>
+    <div class="availability-selector">
+        <button class="avail-btn {{ $mechanic->availability === 'available' ? 'active-available' : '' }}"
+                data-status="available"
+                onclick="setAvailability('available')">
+            <i class="fas fa-circle me-1" style="font-size:8px"></i> Available
+        </button>
+        <button class="avail-btn {{ $mechanic->availability === 'busy' ? 'active-busy' : '' }}"
+                data-status="busy"
+                onclick="setAvailability('busy')">
+            <i class="fas fa-circle me-1" style="font-size:8px"></i> Busy
+        </button>
+        <button class="avail-btn {{ $mechanic->availability === 'offline' ? 'active-offline' : '' }}"
+                data-status="offline"
+                onclick="setAvailability('offline')">
+            <i class="fas fa-circle me-1" style="font-size:8px"></i> Offline
+        </button>
     </div>
 </div>
 
@@ -387,12 +390,37 @@ function setAvailability(status) {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
+            // Remove all active classes
             document.querySelectorAll('.avail-btn').forEach(btn => {
-                btn.classList.remove('active-available','active-busy','active-offline');
+                btn.classList.remove('active-available', 'active-busy', 'active-offline');
             });
-            event.target.classList.add('active-' + status);
+
+            // Add active class to clicked button
+            document.querySelectorAll('.avail-btn').forEach(btn => {
+                if (btn.getAttribute('data-status') === status) {
+                    btn.classList.add('active-' + status);
+                }
+            });
+
+            // Show toast notification
+            showToast('Availability updated to ' + status, 'success');
         }
     });
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position:fixed;top:80px;right:20px;z-index:9999;
+        background:${type === 'success' ? '#10b981' : '#ef4444'};
+        color:white;padding:12px 20px;border-radius:12px;
+        font-size:13px;font-weight:600;
+        box-shadow:0 8px 25px rgba(0,0,0,0.2);
+        animation:slideIn 0.3s ease;
+    `;
+    toast.innerHTML = `<i class="fas fa-check-circle me-2"></i>${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 </script>
 @endpush
