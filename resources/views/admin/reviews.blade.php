@@ -9,11 +9,11 @@
 
 @section('content')
 
-<div class="mb-4">
+{{-- <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
         <i class="fas fa-star me-2 text-warning"></i> Reviews & Ratings
     </h4>
-</div>
+</div> --}}
 
 {{-- Stats --}}
 <div class="row g-3 mb-4">

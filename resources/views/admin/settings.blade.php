@@ -9,11 +9,11 @@
 
 @section('content')
 
-<div class="mb-4">
+{{-- <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
         <i class="fas fa-cog me-2 text-primary"></i> Admin Settings
     </h4>
-</div>
+</div> --}}
 
 <div class="row g-4">
 
@@ -49,7 +49,7 @@
                     </div>
                     <button type="submit" class="btn btn-fixgo"
                             style="width:auto;padding:10px 24px">
-                        <i class="fas fa-save me-2"></i> Save Profile
+                       <span style="color: white"> <i class="fas fa-save me-2"></i> Save Profile</span>
                     </button>
                 </form>
             </div>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
                 <button class="btn btn-fixgo mt-3" style="width:auto;padding:10px 24px">
-                    <i class="fas fa-save me-2"></i> Save Settings
+                    <span style="color: white"><i class="fas fa-save me-2"></i> Save Settings</span>
                 </button>
             </div>
         </div>

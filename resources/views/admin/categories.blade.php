@@ -11,10 +11,10 @@
 
 <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-        <i class="fas fa-tags me-2 text-primary"></i> Manage Categories
+        {{--<i class="fas fa-tags me-2 text-primary"></i> Manage Categories--}}
     </h4>
-    <p class="text-muted mb-0" style="font-size:14px">
-        Manage service and vehicle categories.
+    <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
+        {{-- Manage service and vehicle categories. --}}
     </p>
 </div>
 
@@ -49,7 +49,7 @@
                                style="font-size:13px">
                         <button type="submit" class="btn btn-fixgo"
                                 style="width:auto;padding:10px 20px;white-space:nowrap">
-                            <i class="fas fa-plus me-1"></i> Add
+                           <span style="color: white"> <i class="fas fa-plus me-1"></i> Add</span>
                         </button>
                     </div>
                     @error('name')
@@ -120,7 +120,7 @@
                                style="font-size:13px">
                         <button type="submit" class="btn btn-fixgo"
                                 style="width:auto;padding:10px 20px;white-space:nowrap">
-                            <i class="fas fa-plus me-1"></i> Add
+                            <span style="color: white"><i class="fas fa-plus me-1"></i> Add</span>
                         </button>
                     </div>
                 </form>

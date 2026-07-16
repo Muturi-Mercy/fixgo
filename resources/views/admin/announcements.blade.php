@@ -9,14 +9,14 @@
 
 @section('content')
 
-<div class="mb-4">
+{{-- <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
         <i class="fas fa-bullhorn me-2 text-primary"></i> Announcements
     </h4>
     <p class="text-muted mb-0" style="font-size:14px">
         Send announcements to users, mechanics, or everyone.
     </p>
-</div>
+</div> --}}
 
 @if(session('success'))
     <div class="alert alert-success mb-4"
@@ -96,7 +96,7 @@
 
                     <button type="submit" class="btn btn-fixgo w-100"
                             style="padding:12px">
-                        <i class="fas fa-paper-plane me-2"></i> Send Announcement
+                       <span style="color:#f97316 "> <i class="fas fa-paper-plane me-2"></i> Send Announcement</span>
                     </button>
                 </form>
             </div>

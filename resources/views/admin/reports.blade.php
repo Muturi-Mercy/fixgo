@@ -11,9 +11,9 @@
 
 <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-        <i class="fas fa-chart-bar me-2 text-primary"></i> Reports & Analytics
+        {{--<i class="fas fa-chart-bar me-2 text-primary"></i> Reports & Analytics--}}
     </h4>
-    <p class="text-muted mb-0" style="font-size:14px">
+    <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
         Platform performance and revenue insights.
     </p>
 </div>
@@ -79,7 +79,7 @@
     <div class="col-lg-4">
         <div class="fixgo-card h-100">
             <div class="fixgo-card-header">
-                <h6><i class="fas fa-trophy me-2 text-warning"></i>Top Mechanics</h6>
+                <h6>{{--<i class="fas fa-trophy me-2 text-warning"></i>--}}Top Mechanics</h6>
             </div>
             <div class="fixgo-card-body p-0">
                 @foreach($topMechanics as $index => $mech)
