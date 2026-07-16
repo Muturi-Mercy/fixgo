@@ -11,9 +11,9 @@
 
 <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-        <i class="fas fa-clipboard-list me-2 text-primary"></i> Manage Requests
+        {{--<i class="fas fa-clipboard-list me-2 text-primary"></i> Manage Requests--}}
     </h4>
-    <p class="text-muted mb-0" style="font-size:14px">
+    <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
         View and monitor all breakdown requests.
     </p>
 </div>
@@ -42,7 +42,7 @@
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-fixgo w-100"
                             style="padding:11px">
-                        <i class="fas fa-search me-1"></i> Filter
+                        <span style="color: white"><i class="fas fa-search me-1"></i> Filter</span>
                     </button>
                 </div>
             </div>
