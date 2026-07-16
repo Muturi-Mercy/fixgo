@@ -73,7 +73,7 @@
                     {{ $driver->name }}
                 </h4>
                 <p class="text-muted mb-1" style="font-size:14px">
-                    <i class="fas fa-car me-1"></i> Driver / User
+                    <i class="fas fa-car me-1"></i> Driver
                 </p>
                 <p class="text-muted mb-3" style="font-size:13px">
                     Member since {{ $driver->created_at->format('M Y') }}
@@ -84,19 +84,17 @@
                 </span>
 
                 {{-- Stats --}}
-                <div class="mechanic-stats my-4">
+                {{-- <div class="mechanic-stats my-4">
                     <div class="mechanic-stat">
-                        <span class="mechanic-stat-value">
-                            {{ BreakdownRequest::where('user_id', $driver->id)->count() }}
-                        </span>
+                        <span class="mechanic-stat-value">{{ $totalRequests }}</span>
                         <span class="mechanic-stat-label">Total Requests</span>
                     </div>
                     <div class="mechanic-stat-divider"></div>
                     <div class="mechanic-stat">
-                        <span class="mechanic-stat-value">{{ $requests }}</span>
+                        <span class="mechanic-stat-value">{{ $completedRequests }}</span>
                         <span class="mechanic-stat-label">Completed</span>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- Contact Info --}}
                 <div class="text-start p-3 mb-4"

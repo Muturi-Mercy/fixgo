@@ -403,16 +403,13 @@ class MechanicDashboardController extends Controller
 
     public function viewDriver($id)
     {
-        $driver = \App\Models\User::where('role', 'user')
-            ->findOrFail($id);
+        $driver = \App\Models\User::where('role', 'user')->findOrFail($id);
 
-        // Check if driver allows profile viewing
-        // (based on their privacy settings — we'll use a simple check)
-        $requests = BreakdownRequest::where('user_id', $id)
-            ->where('status', 'completed')
-            ->count();
+        $totalRequests = \App\Models\BreakdownRequest::where('user_id', $id)->count();
+        $completedRequests = \App\Models\BreakdownRequest::where('user_id', $id)
+            ->where('status', 'completed')->count();
 
-        return view('mechanic.driver-profile', compact('driver', 'requests'));
+        return view('mechanic.driver-profile', compact('driver', 'totalRequests', 'completedRequests'));
     }
 
     public function notifications()

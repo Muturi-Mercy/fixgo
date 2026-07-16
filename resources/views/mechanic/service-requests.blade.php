@@ -40,14 +40,14 @@
 
 @section('content')
 
-<div class="mb-4">
+{{-- <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-        {{-- <i class="fas fa-bell me-2 text-warning"></i> Service Requests --}}
+         <i class="fas fa-bell me-2 text-warning"></i> Service Requests 
     </h4>
     <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
         Manage incoming and active service requests.
     </p>
-</div>
+</div> --}}
 
 @if(session('success'))
     <div class="alert alert-success mb-4"
@@ -60,24 +60,33 @@
 <div class="fixgo-card mb-4">
     <div class="fixgo-card-body" style="padding:10px 16px">
         <ul class="nav nav-pills gap-2" id="requestTabs">
+
+            <span style="padding-right: 90px">
             <li class="nav-item">
                 <a class="nav-link active" href="#new" data-bs-toggle="tab">
                     <i class="fas fa-bell me-1"></i> New
                     <span class="badge bg-danger ms-1">{{ $newRequests->count() }}</span>
                 </a>
             </li>
+            </span>
+
+            <span style="padding-right: 90px">
             <li class="nav-item">
                 <a class="nav-link" href="#accepted" data-bs-toggle="tab">
                     <i class="fas fa-check me-1"></i> Accepted
                     <span class="badge bg-primary ms-1">{{ $acceptedRequests->count() }}</span>
                 </a>
             </li>
+            </span>
+
+            <span style="padding-right: 90px">
             <li class="nav-item">
                 <a class="nav-link" href="#completed" data-bs-toggle="tab">
                     <i class="fas fa-flag-checkered me-1"></i> Completed
                     <span class="badge bg-success ms-1">{{ $completedRequests->count() }}</span>
                 </a>
             </li>
+            </span>
         </ul>
     </div>
 </div>

@@ -161,7 +161,7 @@
 
             {{-- Info --}}
             <div class="mechanic-card-body">
-                <h6 class="mechanic-name">{{ $mechanic->user->name }}</h6>
+                <h6 class="mechanic-name" style="padding-top: 30px; padding-bottom:10px">{{ $mechanic->user->name }}</h6>
 
                 {{-- Rating --}}
                 <div class="mechanic-rating mb-2">
@@ -205,13 +205,13 @@
                         <span class="mechanic-stat-value">{{ $mechanic->total_jobs }}</span>
                         <span class="mechanic-stat-label">Jobs Done</span>
                     </div>
-                    <div class="mechanic-stat-divider"></div>
+                    {{-- <div class="mechanic-stat-divider"></div>
                     <div class="mechanic-stat">
                         <span class="mechanic-stat-value">
                             {{ $mechanic->response_time ?? '—' }}
                         </span>
                         <span class="mechanic-stat-label">Min Response</span>
-                    </div>
+                    </div> --}}
                 </div>
 
                 {{-- Price Range --}}
@@ -232,7 +232,7 @@
                     <a href="{{ route('user.request-assistance') }}"
                        class="btn btn-fixgo btn-sm flex-1"
                        style="width:auto;padding:7px 14px">
-                        <i class="fas fa-tools me-1"></i> Request
+                       <span style="color: white"> <i class="fas fa-tools me-1"></i> Request</span>
                     </a>
                 </div>
             </div>

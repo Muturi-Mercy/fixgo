@@ -64,7 +64,7 @@
 {{-- Category Filter --}}
 <div class="fixgo-card mb-4">
     <div class="fixgo-card-header">
-        <h6><i class="fas fa-filter me-2 text-primary"></i>Filter by Category</h6>
+        <h6>{{-- <iclass="fasfa-filterme-2text-primary"></i> --}}Filter by Category</h6>
         <span class="text-muted" style="font-size:13px">
             <span id="portfolioCount">{{ $portfolios->count() }}</span> works
         </span>

@@ -118,13 +118,13 @@
                         <span class="mechanic-stat-value">{{ $mechanic->total_jobs }}</span>
                         <span class="mechanic-stat-label">Jobs Done</span>
                     </div>
-                    <div class="mechanic-stat-divider"></div>
+                    {{-- <div class="mechanic-stat-divider"></div>
                     <div class="mechanic-stat">
                         <span class="mechanic-stat-value">
                             {{ $mechanic->response_time ?? '—' }}
                         </span>
                         <span class="mechanic-stat-label">Min Response</span>
-                    </div>
+                    </div> --}}
                 </div>
 
                 {{-- Price --}}

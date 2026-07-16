@@ -40,14 +40,14 @@
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+    {{-- <div>
         <h4 style="color:#1a3c6e;font-weight:700;margin:0">
             <i class="fas fa-bell me-2 text-primary"></i> Notifications
         </h4>
         <p class="text-muted mb-0" style="font-size:14px">
             Stay updated on your requests and activities.
         </p>
-    </div>
+    </div> --}}
     @if(auth()->user()->unreadNotifications->count())
     <form method="POST" action="{{ route('user.notifications.mark-all-read') }}">
         @csrf @method('PATCH')

@@ -22,11 +22,14 @@
     <a href="{{ route('mechanic.reviews') }}" class="nav-link">
         <i class="fas fa-star"></i> Reviews
     </a>
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    </a>
+    <a href="{{ route('mechanic.settings') }}" class="nav-link">
+        <i class="fas fa-cog"></i> Settings
+    </a>
     <a href="{{ route('mechanic.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -94,7 +97,7 @@
                     <button onclick="sendMessage()"
                             class="btn btn-fixgo"
                             style="width:auto;padding:10px 20px">
-                       <span style="color: white" ><i class="fas fa-paper-plane"></i></span>
+                       <span style="color: #f97316" ><i class="fas fa-paper-plane"></i></span>
                     </button>
                 </div>
             </div>

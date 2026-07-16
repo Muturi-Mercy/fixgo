@@ -39,14 +39,14 @@
 
 @section('content')
 
-<div class="mb-4">
+{{-- <div class="mb-4">
     <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-        {{--<i class="fas fa-wallet me-2 text-primary"></i> Earnings--}}
+       <i class="fas fa-wallet me-2 text-primary"></i> Earnings
     </h4>
     <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
         Track your income and payment history.
     </p>
-</div>
+</div> --}}
 
 {{-- Stat Cards --}}
 <div class="row g-3 mb-4">

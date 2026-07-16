@@ -45,8 +45,8 @@
 
         {{-- SOS Button (User only) --}}
         @if(auth()->user()->role === 'user')
-        <div class="sidebar-sos">
-            <p class="sos-text">Need urgent help?<br>
+        <div class="sidebar-sos" style="padding-top: 0px; padding-bottom:10px">
+            <p class="sos-text" style="color: black">Need urgent help?<br>
                 <small>Tap SOS for immediate assistance</small>
             </p>
             <button class="btn-sos" onclick="triggerSOS()">

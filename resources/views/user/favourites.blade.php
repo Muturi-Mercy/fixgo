@@ -130,7 +130,7 @@
                         <a href="{{ route('user.request-assistance') }}"
                            class="btn btn-fixgo btn-sm flex-1"
                            style="width:auto;padding:7px 14px">
-                            <i class="fas fa-tools me-1"></i> Request
+                           <span style="color: white"> <i class="fas fa-tools me-1"></i> Request</span>
                         </a>
                     </div>
                 </div>
