@@ -26,7 +26,12 @@
         <i class="fas fa-user"></i> Profile
     </a>
     <a href="{{ route('mechanic.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('mechanic.settings') }}" class="nav-link active">
         <i class="fas fa-cog"></i> Settings
@@ -40,12 +45,12 @@
 @section('content')
 
 <div class="mb-4">
-    <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-        {{--<i class="fas fa-cog me-2 text-primary"></i> Settings--}}
+    {{-- <h4 style="color:#1a3c6e;font-weight:700;margin:0">
+        <i class="fas fa-cog me-2 text-primary"></i> Settings
     </h4>
     <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
         Manage your account preferences.
-    </p>
+    </p> --}}
 </div>
 
 @if(session('success'))
@@ -161,7 +166,8 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="show_profile" checked
+                                   name="show_profile"
+                                    {{ $settings->show_profile ? 'checked' : '' }}
                                    style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>
@@ -177,7 +183,8 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="share_location" checked
+                                   name="share_location"
+                                   {{ $settings->share_location ? 'checked' : '' }}
                                    style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>
@@ -193,7 +200,8 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="show_earnings" checked
+                                   name="show_earnings" 
+                                    {{ $settings->show_earnings ? 'checked' : '' }}
                                    style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>

@@ -25,8 +25,13 @@
     <a href="{{ route('mechanic.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
     </a>
-    <a href="{{ route('mechanic.notifications') }}" class="nav-link active">
-        <i class="fas fa-bell"></i> Notifications
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('mechanic.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings
@@ -44,9 +49,9 @@
         <h4 style="color:#1a3c6e;font-weight:700;margin:0">
             {{--<i class="fas fa-bell me-2 text-primary"></i> Notifications--}}
         </h4>
-        <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
+        {{-- <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
             Stay updated on requests and activities.
-        </p>
+        </p> --}}
     </div>
     @if(auth()->user()->unreadNotifications->count())
     <form method="POST"
@@ -61,7 +66,7 @@
 </div>
 
 {{-- Stats --}}
-<div class="row g-3 mb-4">
+{{-- <div class="row g-3 mb-4">
     <div class="col-md-4">
         <div class="stat-card">
             <div class="stat-icon blue"><i class="fas fa-bell"></i></div>
@@ -89,34 +94,71 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <div class="fixgo-card">
     <div class="fixgo-card-body p-0">
         @if($notifications->count())
             @foreach($notifications as $notification)
-            <div class="notification-item {{ is_null($notification->read_at) ? 'unread' : '' }}">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="notification-icon
-                         {{ is_null($notification->read_at) ? 'unread-icon' : 'read-icon' }}">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="d-flex justify-content-between">
-                            <p style="font-weight:{{ is_null($notification->read_at) ? '700':'500' }};
-                                      color:#1a3c6e;margin:0;font-size:14px">
-                                {{ $notification->data['title'] ?? 'Notification' }}
-                            </p>
-                            <span style="font-size:11px;color:#9ca3af">
-                                {{ $notification->created_at->diffForHumans() }}
-                            </span>
+                <a href="{{ route('mechanic.notification.view', $notification->id) }}"
+                    class="notification-item-link {{ is_null($notification->read_at) ? 'unread' : '' }}"
+                    style="text-decoration:none;display:block">
+                    <div class="notification-item">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="notification-icon
+                                {{ is_null($notification->read_at) ? 'unread-icon' : 'read-icon' }}">
+                                @php
+                                    $type = $notification->data['type'] ?? 'general';
+                                    $icons = [
+                                        'announcement'      => 'fas fa-bullhorn',
+                                        'new_message'       => 'fas fa-comment',
+                                        'request_accepted'  => 'fas fa-check-circle',
+                                        'request_cancelled' => 'fas fa-times-circle',
+                                        'request_completed' => 'fas fa-flag-checkered',
+                                        'general'           => 'fas fa-bell',
+                                    ];
+                                @endphp
+                                <i class="{{ $icons[$type] ?? 'fas fa-bell' }}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p style="font-weight:{{ is_null($notification->read_at) ? '700':'500' }};
+                                                color:#1a3c6e;margin:0;font-size:14px">
+                                            {{ $notification->data['title'] ?? 'Notification' }}
+                                        </p>
+                                        <p style="color:#6b7280;font-size:13px;margin:4px 0 0">
+                                            {{ \Illuminate\Support\Str::limit($notification->data['message'] ?? '', 80) }}
+                                        </p>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-end gap-1">
+                                        <span style="font-size:11px;color:#9ca3af;white-space:nowrap;padding-left:50px">
+                                            {{ $notification->created_at->diffForHumans() }}
+                                        </span>
+                                        @if(is_null($notification->read_at))
+                                        <span style="width:8px;height:8px;background:#3b82f6;
+                                                    border-radius:50%;display:inline-block"></span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @php $type = $notification->data['type'] ?? 'general'; @endphp
+                                <div class="mt-1">
+                                    @if($type === 'new_message')
+                                        <span style="font-size:11px;background:#eff6ff;color:#1a3c6e;
+                                                    padding:2px 8px;border-radius:10px;font-weight:600">
+                                            <i class="fas fa-comment me-1"></i> Chat Message
+                                        </span>
+                                    @elseif($type === 'announcement')
+                                        <span style="font-size:11px;background:#fef3c7;color:#92400e;
+                                                    padding:2px 8px;border-radius:10px;font-weight:600">
+                                            <i class="fas fa-bullhorn me-1"></i> Announcement
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
-                        <p style="color:#6b7280;font-size:13px;margin:4px 0 0">
-                            {{ $notification->data['message'] ?? '' }}
-                        </p>
                     </div>
-                </div>
-            </div>
+                </a>
             @endforeach
             <div class="p-3 d-flex justify-content-center">
                 {{ $notifications->links() }}
@@ -132,3 +174,34 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+.notification-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f4ff;
+    transition: background 0.2s ease;
+}
+.notification-item:last-child { border-bottom: none; }
+.notification-item:hover { background: #f8fafc; }
+.notification-item.unread { background: #eff6ff; }
+.notification-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.unread-icon {
+    background: linear-gradient(135deg, #1a3c6e, #3b82f6);
+    color: white;
+}
+.read-icon {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+</style>
+@endpush

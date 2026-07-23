@@ -23,7 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link active">
         <i class="fas fa-user"></i> Profile

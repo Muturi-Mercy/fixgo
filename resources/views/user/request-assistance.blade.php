@@ -23,8 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
-        <span class="nav-badge">3</span>
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
@@ -80,6 +84,39 @@
         <form method="POST" action="{{ route('user.store-request') }}"
               enctype="multipart/form-data" id="requestForm">
             @csrf
+
+            <input type="hidden" name="mechanic_id" value="{{ $selectedMechanic->id ?? '' }}">
+
+            {{-- Show if specific mechanic selected --}}
+            @if($selectedMechanic)
+            <div class="alert mb-4"
+                style="background:#eff6ff;border:2px solid #3b82f6;
+                        border-radius:12px;padding:16px 20px">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="nav-user-avatar" style="width:46px;height:46px;font-size:18px;flex-shrink:0">
+                        @if($selectedMechanic->user->profile_photo)
+                            <img src="{{ asset('storage/'.$selectedMechanic->user->profile_photo) }}"
+                                style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+                        @else
+                            <i class="fas fa-user"></i>
+                        @endif
+                    </div>
+                    <div class="flex-1">
+                        <p style="font-weight:700;color:#1a3c6e;margin:0;font-size:14px">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            Requesting {{ $selectedMechanic->user->name }} specifically
+                        </p>
+                        <p style="font-size:12px;color:#6b7280;margin:0">
+                            This request will go directly to this mechanic.
+                        </p>
+                    </div>
+                    <a href="{{ route('user.request-assistance') }}"
+                    class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times"></i> Remove
+                    </a>
+                </div>
+            </div>
+            @endif
 
             {{-- STEP 1: Service --}}
             <div class="step-content" id="step-1">
@@ -546,6 +583,68 @@ function previewPhotos(input) {
         };
         reader.readAsDataURL(file);
     });
+}
+</script>
+@endpush
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let uploadedFiles = [];
+
+function previewPhotos(input) {
+    const preview = document.getElementById('photoPreview');
+    const newFiles = Array.from(input.files);
+    uploadedFiles = [...uploadedFiles, ...newFiles];
+    renderPreviews();
+    // Reset input so same file can be re-added if needed
+    input.value = '';
+}
+
+function renderPreviews() {
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+
+    uploadedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'position-relative photo-preview-item';
+            div.style.cssText = 'width:90px;height:90px;display:inline-block;margin:4px';
+            div.innerHTML = `
+                <img src="${e.target.result}"
+                     style="width:90px;height:90px;object-fit:cover;
+                            border-radius:10px;border:2px solid #e5e7eb">
+                <button type="button"
+                        onclick="removePhoto(${index})"
+                        style="position:absolute;top:-8px;right:-8px;
+                               width:22px;height:22px;border-radius:50%;
+                               background:#ef4444;color:white;border:none;
+                               display:flex;align-items:center;justify-content:center;
+                               font-size:11px;cursor:pointer;
+                               box-shadow:0 2px 6px rgba(0,0,0,0.2)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Rebuild hidden file input with remaining files
+    rebuildFileInput();
+}
+
+function removePhoto(index) {
+    uploadedFiles.splice(index, 1);
+    renderPreviews();
+}
+
+function rebuildFileInput() {
+    // Create a DataTransfer to rebuild the file input
+    const dt = new DataTransfer();
+    uploadedFiles.forEach(file => dt.items.add(file));
+    document.getElementById('photoInput').files = dt.files;
 }
 </script>
 @endpush

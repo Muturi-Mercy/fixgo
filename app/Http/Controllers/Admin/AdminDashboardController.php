@@ -285,7 +285,7 @@ class AdminDashboardController extends Controller
         return view('admin.announcements', compact('announcements'));
     }
 
-    public function storeAnnouncement(Request $request)
+   public function storeAnnouncement(Request $request)
     {
         $request->validate([
             'title'   => 'required|string|max:255',
@@ -300,7 +300,26 @@ class AdminDashboardController extends Controller
             'target'   => $request->target,
         ]);
 
-        return back()->with('success', 'Announcement sent successfully!');
+        // Send notification to target users
+        $query = User::query();
+        if ($request->target === 'users') {
+            $query->where('role', 'user');
+        } elseif ($request->target === 'mechanics') {
+            $query->where('role', 'mechanic');
+        } else {
+            $query->whereIn('role', ['user', 'mechanic']);
+        }
+
+        $users = $query->get();
+        foreach ($users as $user) {
+            $user->notify(new \App\Notifications\GeneralNotification(
+                $request->title,
+                $request->message,
+                'announcement'
+            ));
+        }
+
+        return back()->with('success', 'Announcement sent to '.$users->count().' users!');
     }
 
     public function deleteAnnouncement($id)

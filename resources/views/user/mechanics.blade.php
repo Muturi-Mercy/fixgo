@@ -23,8 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
-        <span class="nav-badge">3</span>
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
@@ -229,10 +233,10 @@
                        class="btn btn-outline-primary btn-sm flex-1">
                         <i class="fas fa-user me-1"></i> View Profile
                     </a>
-                    <a href="{{ route('user.request-assistance') }}"
-                       class="btn btn-fixgo btn-sm flex-1"
-                       style="width:auto;padding:7px 14px">
-                       <span style="color: white"> <i class="fas fa-tools me-1"></i> Request</span>
+                    <a href="{{ route('user.request-assistance', $mechanic->id) }}"
+                        class="btn btn-fixgo btn-sm flex-1"
+                        style="width:auto;padding:7px 14px">
+                            <i class="fas fa-tools me-1"></i> Request
                     </a>
                 </div>
             </div>

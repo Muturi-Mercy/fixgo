@@ -37,13 +37,72 @@ class UserDashboardController extends Controller
         ));
     }
 
-    public function requestAssistance()
+    public function requestAssistance($mechanicId = null)
     {
         $serviceCategories = ServiceCategory::where('is_active', true)->get();
         $vehicleCategories = VehicleCategory::where('is_active', true)->get();
-        return view('user.request-assistance', compact('serviceCategories', 'vehicleCategories'));
+        $selectedMechanic = $mechanicId
+            ? Mechanic::with('user')->find($mechanicId)
+            : null;
+        return view('user.request-assistance', compact(
+            'serviceCategories', 'vehicleCategories', 'selectedMechanic'
+        ));
+    }
+    public function storeRequest(Request $request)
+{
+    $request->validate([
+        'vehicle_category_id'  => 'required|exists:vehicle_categories,id',
+        'service_category_id'  => 'required|exists:service_categories,id',
+        'problem_description'  => 'required|string',
+        'user_latitude'        => 'required',
+        'user_longitude'       => 'required',
+    ]);
+
+    $requestNumber = 'REQ#' . strtoupper(uniqid());
+
+    $breakdownRequest = BreakdownRequest::create([
+        'request_number'      => $requestNumber,
+        'user_id'             => auth()->id(),
+        'mechanic_id'         => $request->mechanic_id ?: null,
+        'service_category_id' => $request->service_category_id,
+        'vehicle_category_id' => $request->vehicle_category_id,
+        'problem_description' => $request->problem_description,
+        'user_latitude'       => $request->user_latitude,
+        'user_longitude'      => $request->user_longitude,
+        'user_address'        => $request->user_address,
+        'status'              => $request->mechanic_id ? 'accepted' : 'pending',
+        'accepted_at'         => $request->mechanic_id ? now() : null,
+    ]);
+
+    if ($request->hasFile('photos')) {
+        foreach ($request->file('photos') as $photo) {
+            $path = $photo->store('request-photos', 'public');
+            \App\Models\RequestPhoto::create([
+                'breakdown_request_id' => $breakdownRequest->id,
+                'photo_path'           => $path,
+            ]);
+        }
     }
 
+    // Notify specific mechanic if selected
+    if ($request->mechanic_id) {
+        $mechanic = Mechanic::with('user')->find($request->mechanic_id);
+        if ($mechanic) {
+            $mechanic->user->notify(
+                new \App\Notifications\GeneralNotification(
+                    'New Service Request',
+                    auth()->user()->name . ' has sent you a direct service request: '
+                        . ($breakdownRequest->serviceCategory->name ?? ''),
+                    'request_accepted',
+                    '/mechanic/service-requests'
+                )
+            );
+        }
+    }
+
+    return redirect()->route('user.my-requests')
+        ->with('success', 'Your request has been submitted!');
+}
     public function myRequests()
         {
             $query = BreakdownRequest::where('user_id', auth()->id())
@@ -57,14 +116,37 @@ class UserDashboardController extends Controller
             return view('user.my-requests', compact('requests'));
         }
 
-    public function cancelRequest($id)
-        {
-            $request = BreakdownRequest::where('user_id', auth()->id())
-                ->where('status', 'pending')
+        public function viewRequest($id){
+            $request = BreakdownRequest::where('user_id',auth()->id())
+                ->with(['serviceCategory','vehicleCategory','mechanic.user','photos','rating','chat.sender'])
                 ->findOrFail($id);
-            $request->update(['status' => 'cancelled']);
-            return back()->with('success', 'Request cancelled successfully.');
+            return view('user.request-view',compact('request'));
         }
+    public function cancelRequest($id)
+    {
+        $req = BreakdownRequest::where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'accepted'])
+            ->findOrFail($id);
+
+        // If mechanic already accepted, notify them
+        if ($req->status === 'accepted' && $req->mechanic) {
+            $req->mechanic->user->notify(
+                new \App\Notifications\GeneralNotification(
+                    'Request Cancelled',
+                    auth()->user()->name . ' has cancelled the request: ' .
+                        $req->request_number,
+                    'request_cancelled'
+                )
+            );
+        }
+
+        $req->update([
+            'status'      => 'cancelled',
+            'mechanic_id' => null, // Release mechanic so request goes back to pool
+        ]);
+
+        return back()->with('success', 'Request cancelled successfully.');
+    }
 
     public function rateRequest(Request $request)
         {
@@ -240,46 +322,6 @@ class UserDashboardController extends Controller
 
         return back()->with('success', 'Profile photo updated!');
     }
-    public function storeRequest(Request $request)
-    {
-        $request->validate([
-            'vehicle_category_id'  => 'required|exists:vehicle_categories,id',
-            'service_category_id'  => 'required|exists:service_categories,id',
-            'problem_description'  => 'required|string',
-            'user_latitude'        => 'required',
-            'user_longitude'       => 'required',
-        ]);
-
-        // Generate unique request number
-        $requestNumber = 'REQ#' . strtoupper(uniqid());
-
-        $breakdownRequest = BreakdownRequest::create([
-            'request_number'      => $requestNumber,
-            'user_id'             => auth()->id(),
-            'service_category_id' => $request->service_category_id,
-            'vehicle_category_id' => $request->vehicle_category_id,
-            'problem_description' => $request->problem_description,
-            'user_latitude'       => $request->user_latitude,
-            'user_longitude'      => $request->user_longitude,
-            'user_address'        => $request->user_address,
-            'status'              => 'pending',
-        ]);
-
-        // Handle photo uploads
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('request-photos', 'public');
-                \App\Models\RequestPhoto::create([
-                    'breakdown_request_id' => $breakdownRequest->id,
-                    'photo_path'           => $path,
-                ]);
-            }
-        }
-
-        return redirect()->route('user.my-requests')
-            ->with('success', 'Your request has been submitted! Nearby mechanics will be notified.');
-    }
-
     public function toggleFavourite($id)
     {
         $existing = \App\Models\Favourite::where('user_id', auth()->id())
@@ -300,12 +342,28 @@ class UserDashboardController extends Controller
 
     public function settings()
     {
-        return view('user.settings');
+        $settings = auth()->user()->settings
+            ?? new \App\Models\UserSetting(['user_id' => auth()->id()]);
+        return view('user.settings', compact('settings'));
     }
 
     public function updateSettings(Request $request)
     {
-        return back()->with('success','Settiings Updated Successfully!');
+        \App\Models\UserSetting::updateOrCreate(
+            ['user_id' => auth()->id()],
+            [
+                'notify_request_updates' => $request->has('notify_request_updates'),
+                'notify_mechanic_nearby' => $request->has('notify_mechanic_nearby'),
+                'notify_chat'            => $request->has('notify_chat'),
+                'notify_promotions'      => $request->has('notify_promotions'),
+                'share_location'         => $request->has('share_location'),
+                'show_profile'           => $request->has('show_profile'),
+                'two_factor'             => $request->has('two_factor'),
+                'language'               => $request->language ?? 'English',
+                'currency'               => $request->currency ?? 'KSh',
+            ]
+        );
+        return back()->with('success', 'Settings saved successfully!');
     }
 
     public function sos(Request $request)
@@ -370,6 +428,16 @@ class UserDashboardController extends Controller
             'message'              => $request->message,
         ]);
 
+        // Notify mechanic
+        $breakdownRequest->mechanic->user->notify(
+            new \App\Notifications\GeneralNotification(
+                'New Message from ' . auth()->user()->name,
+                $request->message,
+                'new_message',
+                '/mechanic/chat/' . $requestId
+            )
+        );
+
         return response()->json(['success' => true]);
     }
 
@@ -391,4 +459,21 @@ class UserDashboardController extends Controller
 
         return response()->json($messages);
     }
+
+    public function viewNotification($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        if (is_null($notification->read_at)) {
+            $notification->markAsRead();
+        }
+
+        // If it's a chat notification redirect to chat
+        if (isset($notification->data['type']) && $notification->data['type'] === 'new_message') {
+            $url = $notification->data['url'] ?? null;
+            if ($url) return redirect($url);
+        }
+
+        return view('user.notification-view', compact('notification'));
+    }
+
 }

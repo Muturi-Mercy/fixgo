@@ -23,7 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
@@ -67,7 +72,7 @@
                 <form method="POST" action="{{ route('user.update-settings') }}">
                     @csrf @method('PATCH')
 
-                    <div class="setting-item">
+                   <div class="setting-item">
                         <div>
                             <p style="font-weight:600;font-size:14px;color:#1a3c6e;margin:0">
                                 Request Updates
@@ -78,12 +83,13 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="notify_request_updates" checked
-                                   style="width:44px;height:22px;cursor:pointer">
+                                name="notify_request_updates"
+                                {{ $settings->notify_request_updates ? 'checked' : '' }}
+                                style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>
 
-                    <div class="setting-item">
+                   <div class="setting-item">
                         <div>
                             <p style="font-weight:600;font-size:14px;color:#1a3c6e;margin:0">
                                 Mechanic Nearby
@@ -94,12 +100,13 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="notify_mechanic_nearby" checked
-                                   style="width:44px;height:22px;cursor:pointer">
+                                name="notify_mechanic_nearby"
+                                {{ $settings->notify_mechanic_nearby ? 'checked' : '' }}
+                                style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>
 
-                    <div class="setting-item">
+                  <div class="setting-item">
                         <div>
                             <p style="font-weight:600;font-size:14px;color:#1a3c6e;margin:0">
                                 Chat Messages
@@ -110,12 +117,14 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="notify_chat" checked
-                                   style="width:44px;height:22px;cursor:pointer">
+                                name="notify_chat"
+                                {{ $settings->notify_chat ? 'checked' : '' }}
+                                style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>
 
-                    <div class="setting-item">
+
+                   <div class="setting-item">
                         <div>
                             <p style="font-weight:600;font-size:14px;color:#1a3c6e;margin:0">
                                 Promotions & Offers
@@ -126,11 +135,12 @@
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
-                                   name="notify_promotions"
-                                   style="width:44px;height:22px;cursor:pointer">
+                                name="notify_promotions"
+                                {{ $settings->notify_promotions ? 'checked' : '' }}
+                                style="width:44px;height:22px;cursor:pointer">
                         </div>
                     </div>
-
+                    
                     <button type="submit" class="btn btn-fixgo mt-3"
                             style="width:auto;padding:10px 24px">
                         <span style="color: white"><i class="fas fa-save me-2"></i> Save Notifications</span>

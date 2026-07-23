@@ -24,6 +24,11 @@
     </a>
     <a href="{{ route('mechanic.notifications') }}" class="nav-link">
     <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('mechanic.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings

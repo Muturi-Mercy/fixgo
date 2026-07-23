@@ -61,6 +61,7 @@
     <div class="main-content" id="mainContent">
 
         {{-- TOP NAVBAR --}}
+        {{-- TOP NAVBAR --}}
         <nav class="top-navbar">
             <div class="d-flex align-items-center gap-3">
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
@@ -70,13 +71,41 @@
             </div>
 
             <div class="navbar-right">
-                {{-- Notifications --}}
-                <div class="nav-icon-btn position-relative">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </div>
 
-                {{-- User Info --}}
+                {{-- Notifications Bell --}}
+                @php
+                    $notifRoute = auth()->user()->role === 'admin'
+                        ? '#'
+                        : (auth()->user()->role === 'mechanic'
+                            ? route('mechanic.notifications')
+                            : route('user.notifications'));
+                    $unreadCount = auth()->user()->unreadNotifications->count();
+                @endphp
+                <a href="{{ $notifRoute }}"
+                class="nav-icon-btn position-relative"
+                style="text-decoration:none;color:inherit">
+                   <span style="color:#ef4444"><i class="fas fa-bell"></i></span>
+                    @if($unreadCount > 0)
+                    <span class="notification-badge" id="notifBadge">
+                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                    </span>
+                    @endif
+                </a>
+
+                {{-- User Dropdown --}}
+                @php
+                    $profileRoute  = auth()->user()->role === 'admin'
+                        ? route('admin.settings')
+                        : (auth()->user()->role === 'mechanic'
+                            ? route('mechanic.profile')
+                            : route('user.profile'));
+                    $settingsRoute = auth()->user()->role === 'admin'
+                        ? route('admin.settings')
+                        : (auth()->user()->role === 'mechanic'
+                            ? route('mechanic.settings')
+                            : route('user.settings'));
+                @endphp
+
                 <div class="dropdown">
                     <div class="nav-user" data-bs-toggle="dropdown" style="cursor:pointer">
                         <div class="nav-user-avatar">
@@ -96,27 +125,28 @@
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{ $profileRoute }}">
                                 <i class="fas fa-user me-2 text-primary"></i> My Profile
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{ $settingsRoute }}">
                                 <i class="fas fa-cog me-2 text-primary"></i> Settings
                             </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-danger" href="{{ route('logout') }}"
-                               onclick="event.preventDefault();
-                               document.getElementById('logout-form').submit();">
+                            onclick="event.preventDefault();
+                            document.getElementById('logout-form').submit();">
                                 <i class="fas fa-sign-out-alt me-2"></i> Logout
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                <form id="logout-form" action="{{ route('logout') }}"
+                    method="POST" class="d-none">
                     @csrf
                 </form>
             </div>
@@ -283,7 +313,7 @@ function submitSOS() {
         return;
     }
 
-    fetch('{{ route("user.sos") }}', {
+    fetch('/user/sos', {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -321,6 +351,36 @@ function showSOSSuccess(requestNumber) {
 }
 </script>
 @endif
+
+<script>
+// Auto-update notification badge every 30 seconds
+function updateNotificationBadge() {
+    fetch('/notifications/count')
+        .then(r => r.json())
+        .then(data => {
+            const badge = document.getElementById('notifBadge');
+            const sidebarBadge = document.getElementById('sidebarNotifBadge');
+
+            if (data.count > 0) {
+                const display = data.count > 9 ? '9+' : data.count;
+                if (badge) {
+                    badge.textContent = display;
+                    badge.style.display = 'flex';
+                }
+                if (sidebarBadge) {
+                    sidebarBadge.textContent = display;
+                    sidebarBadge.style.display = 'inline';
+                }
+            } else {
+                if (badge) badge.style.display = 'none';
+                if (sidebarBadge) sidebarBadge.style.display = 'none';
+            }
+        })
+        .catch(() => {});
+}
+
+setInterval(updateNotificationBadge, 30000);
+</script>
 
 </body>
 </html>

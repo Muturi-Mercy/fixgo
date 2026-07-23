@@ -23,7 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
@@ -39,12 +44,12 @@
 
 @section('content')
 
-<div class="mb-3">
+{{-- <div class="mb-3">
     <a href="{{ route('user.my-requests') }}"
        style="color:#3b82f6;text-decoration:none;font-size:14px">
         <i class="fas fa-arrow-left me-2"></i> Back to My Requests
     </a>
-</div>
+</div> --}}
 
 <div class="row g-4">
 
@@ -163,6 +168,11 @@
                 </a>
             </div>
         </div>
+
+        <a href="{{ route('user.notifications') }}"
+                       class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="fas fa-arrow-left me-2"></i> Go to Notifications
+        </a>
         @endif
     </div>
 </div>

@@ -22,11 +22,19 @@
     <a href="{{ route('mechanic.reviews') }}" class="nav-link">
         <i class="fas fa-star"></i> Reviews
     </a>
+    <a href="{{ route('mechanic.notifications') }}" class="nav-link">
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
+    </a>
+    <a href="{{ route('mechanic.settings') }}" class="nav-link">
+        <i class="fas fa-cog"></i> Settings
+    </a>
     <a href="{{ route('mechanic.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="nav-link">
-        <i class="fas fa-cog"></i> Settings
     </a>
     <a href="{{ route('logout') }}" class="nav-link"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

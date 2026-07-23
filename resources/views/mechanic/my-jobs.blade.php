@@ -24,6 +24,11 @@
     </a>
     <a href="{{ route('mechanic.notifications') }}" class="nav-link">
     <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('mechanic.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings
@@ -40,14 +45,14 @@
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+    {{-- <div>
         <h4 style="color:#1a3c6e;font-weight:700;margin:0">
-            {{--<i class="fas fa-briefcase me-2 text-primary"></i> My Jobs--}}
+            <i class="fas fa-briefcase me-2 text-primary"></i> My Jobs
         </h4>
         <p class="text-muted mb-0" style="color:#1a3c6e;font-weight:700;margin:0">
             All your assigned service jobs.
         </p>
-    </div>
+    </div> --}}
 </div>
 
 @if(session('success'))

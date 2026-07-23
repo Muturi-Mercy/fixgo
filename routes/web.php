@@ -21,8 +21,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications/count', function () {
+        return response()->json([
+            'count' => auth()->user()->unreadNotifications->count()
+        ]);
+    })->name('notifications.count');
+});
 
 //Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -104,6 +112,9 @@ Route::middleware(['auth','mechanic'])->prefix('mechanic')->name('mechanic.')->g
     Route::patch('/notifications/mark-all-read', [MechanicDashboardController::class, 'markAllRead'])->name('notifications.mark-all-read');
     Route::get('/settings', [MechanicDashboardController::class, 'settings'])->name('settings');
     Route::patch('/settings', [MechanicDashboardController::class, 'updateSettings'])->name('update-settings');
+    Route::get('/notification/{id}', [MechanicDashboardController::class, 'viewNotification'])->name('notification.view');
+    Route::patch('/notifications/mark-all-read', [MechanicDashboardController::class, 'markAllRead'])->name('notifications.mark-all-read');
+    Route::patch('/notification/{id}/read', [MechanicDashboardController::class, 'markRead'])->name('notifications.mark-read');
 });
 
 //User Routes
@@ -119,9 +130,11 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::get('/notifications',[UserDashboardController::class,'notifications'])->name('notifications');
     Route::get('/profile',[UserDashboardController::class,'profile'])->name('profile');
     Route::post('/request-assistance',[UserDashboardController::class,'storeRequest'])->name('store-request');
+    Route::get('/request-assistance/{mechanic_id?}', [UserDashboardController::class, 'requestAssistance'])->name('request-assistance');
     Route::patch('/request/{id}/cancel', [UserDashboardController::class, 'cancelRequest'])->name('cancel-request');
     Route::post('/rate-request', [UserDashboardController::class, 'rateRequest'])->name('rate-request');
-    Route::get('/request-details/{id}', [UserDashboardController::class, 'requestDetails'])->name('request-details');
+    Route::get('/request-details/{id}/cancel', [UserDashboardController::class, 'requestDetails'])->name('request-details');
+    Route::get('/request/{id}',[UserDashboardController::class,'viewRequest'])->name('request-details-page');
     Route::post('/favourite/{id}', [UserDashboardController::class, 'toggleFavourite'])->name('toggle-favourite');
     Route::patch('/profile', [UserDashboardController::class, 'updateProfile'])->name('update-profile');
     Route::patch('/profile/password', [UserDashboardController::class, 'updatePassword'])->name('update-password');
@@ -136,6 +149,8 @@ Route::middleware(['auth','user.role'])->prefix('user')->name('user.')->group(fu
     Route::get('/chat/{requestId}', [UserDashboardController::class, 'chat'])->name('chat');
     Route::post('/chat/{requestId}/send', [UserDashboardController::class, 'sendMessage'])->name('chat.send');
     Route::get('/chat/{requestId}/messages', [UserDashboardController::class, 'getMessages'])->name('chat.messages');
+    Route::get('/notification/{id}', [UserDashboardController::class, 'viewNotification'])->name('notification.view');
+    
 
 
 });

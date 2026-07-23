@@ -379,6 +379,16 @@ class MechanicDashboardController extends Controller
             'message'              => $request->message,
         ]);
 
+        // Notify user
+        $breakdownRequest->user->notify(
+            new \App\Notifications\GeneralNotification(
+                'New Message from ' . auth()->user()->name,
+                $request->message,
+                'new_message',
+                '/user/chat/' . $requestId
+            )
+        );
+
         return response()->json(['success' => true]);
     }
 
@@ -418,20 +428,56 @@ class MechanicDashboardController extends Controller
         return view('mechanic.notifications', compact('notifications'));
     }
 
-    public function markAllRead()
-    {
-        auth()->user()->unreadNotifications->markAsRead();
-        return back()->with('success', 'All notifications marked as read.');
-    }
-
-    public function settings()
+   public function settings()
     {
         $mechanic = auth()->user()->mechanic;
-        return view('mechanic.settings', compact('mechanic'));
+        $settings = auth()->user()->settings
+            ?? new \App\Models\UserSetting(['user_id' => auth()->id()]);
+        return view('mechanic.settings', compact('mechanic', 'settings'));
     }
 
     public function updateSettings(Request $request)
     {
-        return back()->with('success', 'Settings updated successfully!');
+        \App\Models\UserSetting::updateOrCreate(
+            ['user_id' => auth()->id()],
+            [
+                'notify_requests'  => $request->has('notify_requests'),
+                'notify_messages'  => $request->has('notify_messages'),
+                'notify_reviews'   => $request->has('notify_reviews'),
+                'notify_payments'  => $request->has('notify_payments'),
+                'share_location'   => $request->has('share_location'),
+                'show_profile'     => $request->has('show_profile'),
+                'show_earnings'    => $request->has('show_earnings'),
+            ]
+        );
+        return back()->with('success', 'Settings saved successfully!');
+    }
+
+    public function viewNotification($id)
+{
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        if (is_null($notification->read_at)) {
+            $notification->markAsRead();
+        }
+
+        if (isset($notification->data['type']) && $notification->data['type'] === 'new_message') {
+            $url = $notification->data['url'] ?? null;
+            if ($url) return redirect($url);
+        }
+
+        return view('mechanic.notification-view', compact('notification'));
+    }
+
+    public function markRead($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+        return back();
+    }
+
+    public function markAllRead()
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back()->with('success', 'All notifications marked as read.');
     }
 }

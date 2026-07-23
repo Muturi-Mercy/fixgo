@@ -19,11 +19,24 @@
     <a href="{{ route('mechanic.portfolio') }}" class="nav-link">
         <i class="fas fa-images"></i> Portfolio
     </a>
-    <a href="{{ route('mechanic.reviews') }}" class="nav-link">
-        <i class="fas fa-star"></i> Reviews
+    <a href="{{ route('mechanic.reviews') }}" class="nav-link {{ request()->routeIs('mechanic.reviews') ? 'active' : '' }}">
+    <i class="fas fa-star"></i> Reviews
+    @php
+        $newReviews = \App\Models\RatingReview::where('mechanic_id', auth()->user()->mechanic->id ?? 0)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
+    @endphp
+    @if($newReviews > 0)
+        <span class="nav-badge nav-badge-orange">{{ $newReviews }}</span>
+    @endif
     </a>
     <a href="{{ route('mechanic.notifications') }}" class="nav-link">
     <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('mechanic.settings') }}" class="nav-link">
         <i class="fas fa-cog"></i> Settings

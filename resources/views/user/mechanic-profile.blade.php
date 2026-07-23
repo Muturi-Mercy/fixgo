@@ -23,7 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
@@ -38,6 +43,13 @@
 @endsection
 
 @section('content')
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{{ route('user.mechanics') }}"
+       style="color:#3b82f6;text-decoration:none;font-size:14px">
+        <i class="fas fa-arrow-left me-2"></i> Go back to see more
+    </a>
+</div>
 
 <div class="row g-4">
 
@@ -140,9 +152,9 @@
                 @endif
 
                 {{-- Action Buttons --}}
-                <a href="{{ route('user.request-assistance') }}"
-                   class="btn btn-fixgo w-100 mb-2">
-                    <span style="color: white"><i class="fas fa-tools me-2"></i> Request Service</span>
+               <a href="{{ route('user.request-assistance', $mechanic->id) }}"
+                    class="btn btn-fixgo w-100">
+                    <i class="fas fa-tools me-2"></i> Request Service
                 </a>
                 <button class="btn btn-outline-primary w-100"
                         onclick="toggleFavourite({{ $mechanic->id }}, this)">

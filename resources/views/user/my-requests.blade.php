@@ -23,8 +23,12 @@
         <i class="fas fa-wallet"></i> Wallet
     </a>
     <a href="{{ route('user.notifications') }}" class="nav-link">
-        <i class="fas fa-bell"></i> Notifications
-        <span class="nav-badge">3</span>
+    <i class="fas fa-bell"></i> Notifications
+    @if(auth()->user()->unreadNotifications->count())
+        <span class="nav-badge" id="sidebarNotifBadge">
+            {{ auth()->user()->unreadNotifications->count() }}
+        </span>
+    @endif
     </a>
     <a href="{{ route('user.profile') }}" class="nav-link">
         <i class="fas fa-user"></i> Profile
@@ -194,30 +198,29 @@
                                 @endif
 
                                 {{-- View Details --}}
-                                <button class="btn btn-sm btn-outline-primary"
-                                        onclick="showRequestDetails({{ $req->id }})">
+                                <a href="{{ route('user.request-details-page', $req->id) }}"
+                                    class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye me-1"></i> View
-                                </button>
+                                </a>
 
-                                {{-- Cancel button for pending requests --}}
-                                @if($req->status === 'pending')
+                                {{-- Cancel button for pending and accepted requests --}}
+                                 @if(in_array($req->status, ['pending', 'accepted']))
                                     <form method="POST"
-                                          action="{{ route('user.cancel-request', $req->id) }}"
-                                          onsubmit="return confirm('Cancel this request?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-times"></i>
+                                        action="{{ route('user.cancel-request', $req->id) }}"
+                                        onsubmit="return confirm('Cancel this request?')">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="fas fa-times me-2"></i> Cancel
                                         </button>
                                     </form>
                                 @endif
 
                                 {{-- Rate button for completed requests --}}
                                 @if($req->status === 'completed' && !$req->rating)
-                                    <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showRateModal({{ $req->id }})">
+                                    <a href="{{ route('user.request-details-page', $req->id) }}"
+                                    class="btn btn-sm btn-outline-warning">
                                         <i class="fas fa-star me-1"></i> Rate
-                                    </button>
+                                    </a>
                                 @endif
                             </div>
                         </div>

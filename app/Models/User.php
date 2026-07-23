@@ -87,4 +87,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(RatingReview::class);
     }
+
+    public function settings()
+    {
+        return $this->hasOne(UserSetting::class);
+    }
+
+    public function getSettings()
+    {
+        return $this->settings ?? new \App\Models\UserSetting();
+    }
 }
